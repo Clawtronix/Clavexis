@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Clavexis AI — Your Intelligent Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --bg4: #1f1f28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f8;
+  --muted: #8888a0;
+  --muted2: #5a5a70;
+  --accent: #7c6af7;
+  --accent2: #9d8fff;
+  --accent-dim: rgba(124,106,247,0.15);
+  --accent-glow: rgba(124,106,247,0.3);
+  --teal: #2dd4bf;
+  --amber: #f59e0b;
+  --green: #22c55e;
+  --red: #ef4444;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --r: 12px;
+  --r2: 8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:15px;line-height:1.6}
+h1,h2,h3,h4{font-family:var(--font-head);line-height:1.15}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:var(--font-body);border:none;outline:none}
+input,textarea{font-family:var(--font-body)}
+.page{display:none;min-height:100vh}
+.page.active{display:flex;flex-direction:column}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ── Noise texture overlay ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:999;opacity:0.4
+}
+
+/* ── Glow blobs ── */
+.blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.blob1{width:600px;height:600px;background:radial-gradient(circle,rgba(124,106,247,0.12),transparent 70%);top:-200px;left:-100px}
+.blob2{width:500px;height:500px;background:radial-gradient(circle,rgba(45,212,191,0.08),transparent 70%);bottom:-100px;right:-100px}
+
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.anim{animation:fadeUp 0.4s ease both}
+.anim2{animation:fadeUp 0.4s ease 0.1s both}
+.anim3{animation:fadeUp 0.4s ease 0.2s both}
+
+/* ── Nav ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(10,10,15,0.85);backdrop-filter:blur(12px)}
+.nav-logo{font-family:var(--font-head);font-weight:800;font-size:20px;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--accent2),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:8px;align-items:center}
+.nav-link{color:var(--muted);font-size:14px;padding:6px 14px;border-radius:var(--r2);transition:color 0.2s,background 0.2s}
+.nav-link:hover{color:var(--text);background:var(--bg3)}
+.nav-cta{background:var(--accent);color:#fff;padding:8px 18px;border-radius:var(--r2);font-size:14px;font-weight:500;transition:background 0.2s,transform 0.15s}
+.nav-cta:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;border-radius:var(--r2);font-size:14px;font-weight:500;transition:all 0.2s;cursor:pointer;border:none}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 0 24px var(--accent-glow)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.btn-secondary:hover{background:var(--bg4);border-color:var(--border2)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2);background:var(--bg3)}
+.btn-danger{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-danger:hover{background:rgba(239,68,68,0.25)}
+.btn-lg{padding:14px 28px;font-size:16px;border-radius:var(--r)}
+.btn-sm{padding:6px 14px;font-size:13px;border-radius:var(--r2)}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important}
+
+/* ── Forms ── */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;color:var(--muted);font-weight:500}
+.input{width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:14px;transition:border-color 0.2s,box-shadow 0.2s}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.input::placeholder{color:var(--muted2)}
+textarea.input{resize:vertical;min-height:80px;line-height:1.6}
+
+/* ── Cards ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.card-sm{padding:14px}
+
+/* ── Badge ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.3px}
+.badge-purple{background:var(--accent-dim);color:var(--accent2);border:1px solid rgba(124,106,247,0.2)}
+.badge-teal{background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.2)}
+.badge-amber{background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2)}
+.badge-green{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+
+/* ── Loading spinner ── */
+.spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:24px;right:24px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{padding:12px 18px;border-radius:var(--r);font-size:13px;font-weight:500;animation:fadeUp 0.3s ease;border:1px solid;max-width:320px}
+.toast-success{background:#0f2a1a;color:#4ade80;border-color:rgba(74,222,128,0.2)}
+.toast-error{background:#2a0f0f;color:#f87171;border-color:rgba(248,113,113,0.2)}
+.toast-info{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);width:100%;max-width:440px;padding:24px;animation:fadeUp 0.25s ease}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:var(--font-head);font-size:18px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:var(--r2);background:var(--bg3);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;border:none}
+.modal-close:hover{background:var(--bg4);color:var(--text)}
+
+/* ============================================================
+   LANDING PAGE
+   ============================================================ */
+#landing{background:var(--bg);position:relative}
+.hero{padding:140px 24px 80px;text-align:center;position:relative;z-index:1;max-width:860px;margin:0 auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:12px;color:var(--accent2);font-weight:600;letter-spacing:0.5px;margin-bottom:28px}
+.hero h1{font-size:clamp(40px,7vw,76px);font-weight:800;letter-spacing:-2px;margin-bottom:20px;line-height:1.0}
+.hero h1 span{background:linear-gradient(135deg,var(--accent2) 0%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:18px;color:var(--muted);max-width:560px;margin:0 auto 36px;line-height:1.7;font-weight:300}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero-meta{margin-top:18px;font-size:12px;color:var(--muted2)}
+
+/* Feature grid */
+.features{padding:80px 24px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.section-label{text-align:center;margin-bottom:48px}
+.section-label p{color:var(--muted);font-size:15px;margin-top:8px}
+.section-label h2{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-1px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;transition:border-color 0.25s,transform 0.2s}
+.feature-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.feature-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.feature-card h3{font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:6px}
+.feature-card p{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* Workspace preview */
+.workspace-demo{padding:40px 24px 80px;max-width:900px;margin:0 auto;position:relative;z-index:1}
+.demo-screen{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.demo-topbar{background:var(--bg3);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px}
+.demo-dot{width:10px;height:10px;border-radius:50%}
+.demo-sidebar{display:flex;height:340px}
+.demo-nav{width:180px;background:var(--bg3);border-right:1px solid var(--border);padding:12px;flex-shrink:0}
+.demo-ws-item{padding:7px 10px;border-radius:var(--r2);font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:2px}
+.demo-ws-item.active{background:var(--accent-dim);color:var(--accent2)}
+.demo-content{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.demo-msg{padding:10px 14px;border-radius:var(--r2);font-size:13px;line-height:1.5;max-width:80%}
+.demo-msg.user{background:var(--accent-dim);color:var(--accent2);align-self:flex-end}
+.demo-msg.ai{background:var(--bg3);color:var(--text)}
+.demo-cursor{display:inline-block;width:2px;height:14px;background:var(--accent2);animation:blink 1s step-end infinite;vertical-align:text-bottom}
+
+/* Pricing section */
+.pricing{padding:80px 24px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:48px}
+.plan-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;position:relative;transition:transform 0.2s}
+.plan-card:hover{transform:translateY(-2px)}
+.plan-card.featured{border-color:var(--accent);background:linear-gradient(135deg,var(--bg2),rgba(124,106,247,0.05))}
+.plan-card.featured::before{content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:0.5px;white-space:nowrap}
+.plan-name{font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:4px}
+.plan-price{font-family:var(--font-head);font-size:32px;font-weight:800;letter-spacing:-1px;margin:12px 0 4px}
+.plan-price span{font-size:16px;font-weight:400;color:var(--muted)}
+.plan-desc{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.plan-divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.plan-features li{font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:8px}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+.plan-features li.no::before{content:'✗';color:var(--muted2)}
+.plan-features li.no{color:var(--muted2)}
+
+/* Footer */
+footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--muted2);font-size:13px;position:relative;z-index:1}
+footer strong{color:var(--muted);font-weight:500}
+
+/* ============================================================
+   AUTH PAGES (LOGIN / REGISTER)
+   ============================================================ */
+.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 24px 24px}
+.auth-box{width:100%;max-width:400px}
+.auth-logo{font-family:var(--font-head);font-weight:800;font-size:22px;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--accent2),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;text-align:center}
+.auth-title{font-family:var(--font-head);font-size:26px;font-weight:700;margin-bottom:6px;text-align:center}
+.auth-sub{color:var(--muted);font-size:14px;text-align:center;margin-bottom:28px}
+.auth-form{display:flex;flex-direction:column;gap:16px}
+.auth-divider{display:flex;align-items:center;gap:12px;color:var(--muted2);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s}
+.google-btn:hover{background:var(--bg4);border-color:var(--border2)}
+.auth-switch{text-align:center;font-size:13px;color:var(--muted);margin-top:4px}
+.auth-switch a{color:var(--accent2);cursor:pointer}
+.auth-switch a:hover{text-decoration:underline}
+.error-msg{padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:var(--r2);color:#f87171;font-size:13px}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+#dashboard{flex-direction:row;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:fixed;left:0;top:0;bottom:0;z-index:50}
+.sidebar-logo{padding:16px;border-bottom:1px solid var(--border);font-family:var(--font-head);font-weight:800;font-size:17px;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--accent2),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar-section{padding:10px 10px 4px;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted2);text-transform:uppercase}
+.ws-list{flex:1;overflow-y:auto;padding:0 8px}
+.ws-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;transition:all 0.15s;margin-bottom:2px;color:var(--muted);font-size:14px;position:relative}
+.ws-item:hover{background:var(--bg3);color:var(--text)}
+.ws-item.active{background:var(--accent-dim);color:var(--accent2)}
+.ws-item-emoji{font-size:16px;flex-shrink:0}
+.ws-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.ws-add-btn{margin:8px;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r2);color:var(--muted2);font-size:13px;cursor:pointer;border:1px dashed var(--border);transition:all 0.2s;background:none;width:calc(100% - 16px)}
+.ws-add-btn:hover{color:var(--accent2);border-color:var(--accent);background:var(--accent-dim)}
+.sidebar-bottom{border-top:1px solid var(--border);padding:10px 8px}
+.user-pill{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r2);cursor:pointer;transition:background 0.15s}
+.user-pill:hover{background:var(--bg3)}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent2);flex-shrink:0}
+.user-name{font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-plan{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--accent-dim);color:var(--accent2)}
+
+/* Main content */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.main-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:30}
+.ws-title{font-family:var(--font-head);font-size:17px;font-weight:700;flex:1}
+.assistant-tabs{display:flex;gap:4px;background:var(--bg3);padding:3px;border-radius:var(--r2)}
+.assistant-tab{padding:5px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all 0.15s;background:none;border:none}
+.assistant-tab.active{background:var(--accent);color:#fff}
+.assistant-tab:hover:not(.active){color:var(--text)}
+
+/* Usage bar */
+.usage-bar{padding:8px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted)}
+.usage-track{flex:1;height:3px;background:var(--bg4);border-radius:2px;max-width:200px}
+.usage-fill{height:100%;border-radius:2px;background:var(--accent);transition:width 0.5s}
+
+/* Conversations panel */
+.conv-panel{width:220px;border-right:1px solid var(--border);flex-shrink:0;overflow-y:auto}
+.conv-panel-header{padding:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.conv-panel-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.conv-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s;font-size:13px}
+.conv-item:hover{background:var(--bg3)}
+.conv-item.active{background:var(--accent-dim)}
+.conv-item-title{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-item-meta{font-size:11px;color:var(--muted2);margin-top:2px}
+
+/* Chat area */
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.chat-welcome{text-align:center;padding:60px 20px;color:var(--muted)}
+.chat-welcome h3{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px}
+.chat-welcome p{font-size:14px;margin-bottom:24px;max-width:360px;margin-left:auto;margin-right:auto}
+.quick-prompts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:500px;margin:0 auto}
+.quick-prompt{padding:8px 14px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border2);font-size:13px;cursor:pointer;transition:all 0.2s;color:var(--muted)}
+.quick-prompt:hover{color:var(--text);border-color:var(--accent);background:var(--accent-dim)}
+
+.msg-row{display:flex;gap:10px;animation:fadeUp 0.2s ease}
+.msg-row.user{flex-direction:row-reverse}
+.msg-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.msg-avatar.ai{background:var(--accent-dim);color:var(--accent2);font-family:var(--font-head)}
+.msg-avatar.user{background:var(--bg4);color:var(--text)}
+.msg-bubble{max-width:70%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.6}
+.msg-bubble.user{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.msg-bubble.ai{background:var(--bg3);color:var(--text);border-bottom-left-radius:4px;border:1px solid var(--border)}
+.msg-bubble pre{background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin:8px 0;overflow-x:auto;font-family:var(--font-mono);font-size:12px;line-height:1.5}
+.msg-bubble code{font-family:var(--font-mono);font-size:12px;background:rgba(0,0,0,0.3);padding:1px 5px;border-radius:4px}
+.msg-bubble pre code{background:none;padding:0}
+.typing-dots{display:flex;gap:4px;padding:6px 0}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:pulse 1.2s ease infinite}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+
+.chat-input-area{padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)}
+.chat-input-box{display:flex;align-items:flex-end;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 14px;transition:border-color 0.2s}
+.chat-input-box:focus-within{border-color:var(--accent)}
+.chat-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:14px;resize:none;max-height:120px;min-height:22px;line-height:1.6;font-family:var(--font-body)}
+.chat-input::placeholder{color:var(--muted2)}
+.send-btn{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;border:none;cursor:pointer}
+.send-btn:hover:not(:disabled){background:var(--accent2);transform:translateY(-1px)}
+.send-btn:disabled{background:var(--bg4);color:var(--muted2)}
+.chat-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.chat-hint{font-size:11px;color:var(--muted2)}
+
+/* Memory panel */
+.memory-panel{width:240px;border-left:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column}
+.memory-header{padding:12px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center}
+.memory-list{flex:1;overflow-y:auto;padding:8px}
+.memory-item{padding:8px 10px;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--border);font-size:12px;margin-bottom:6px;color:var(--muted);line-height:1.5;position:relative}
+.memory-type{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:3px}
+.memory-del{position:absolute;top:6px;right:6px;width:16px;height:16px;border-radius:4px;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
+.memory-item:hover .memory-del{opacity:1}
+
+/* ============================================================
+   PRICING PAGE (full)
+   ============================================================ */
+#pricing-page{min-height:100vh;padding:80px 24px}
+.pricing-page-inner{max-width:1100px;margin:0 auto}
+.pricing-hero{text-align:center;margin-bottom:60px}
+.pricing-hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;letter-spacing:-1.5px;margin-bottom:12px}
+.pricing-hero p{color:var(--muted);font-size:16px;max-width:460px;margin:0 auto}
+.pricing-toggle{display:flex;align-items:center;gap:12px;justify-content:center;margin-top:20px;font-size:14px;color:var(--muted)}
+.toggle-switch{width:44px;height:24px;background:var(--bg4);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s;border:1px solid var(--border2)}
+.toggle-switch.on{background:var(--accent)}
+.toggle-knob{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:3px;transition:transform 0.2s}
+.toggle-switch.on .toggle-knob{transform:translateX(20px)}
+.save-badge{padding:3px 10px;border-radius:20px;background:rgba(34,197,94,0.1);color:var(--green);font-size:11px;font-weight:700;border:1px solid rgba(34,197,94,0.2)}
+
+/* ============================================================
+   ACCOUNT / SETTINGS
+   ============================================================ */
+.settings-page{max-width:640px;margin:0 auto;padding:32px 20px}
+.settings-section{margin-bottom:32px}
+.settings-title{font-family:var(--font-head);font-size:22px;font-weight:700;margin-bottom:20px}
+.settings-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.settings-row{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);gap:12px}
+.settings-row:last-child{border-bottom:none}
+.settings-row-label{flex:1;font-size:14px}
+.settings-row-label span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.25s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .memory-panel,.conv-panel{display:none}
+  .hero h1{font-size:38px}
+  nav .nav-links{gap:4px}
+  .nav-link{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════════════════ -->
+<div id="landing" class="page active">
+  <nav>
+    <div class="nav-logo">Clavexis</div>
+    <div class="nav-links">
+      <a class="nav-link" onclick="scrollTo('#features')">Features</a>
+      <a class="nav-link" onclick="showPage('pricing-page')">Pricing</a>
+      <a class="nav-link" onclick="showPage('login')">Login</a>
+      <a class="nav-cta" onclick="showPage('register')">Get Started Free</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow anim">⚡ AI-powered workspaces for every project</div>
+    <h1 class="anim2">Your AI<br/><span>thinks with you,</span><br/>not at you</h1>
+    <p class="anim3">Clavexis gives you 10 intelligent workspaces — each with its own AI assistant, memory, and context. Chat, code, and email — all in one place.</p>
+    <div class="hero-actions anim3">
+      <button class="btn btn-primary btn-lg" onclick="showPage('register')">Start for free →</button>
+      <button class="btn btn-ghost btn-lg" onclick="scrollTo('#features')">See features</button>
+    </div>
+    <div class="hero-meta anim3">No credit card required · Free plan available · Cancel anytime</div>
+  </section>
+
+  <!-- Demo screen -->
+  <section class="workspace-demo">
+    <div class="demo-screen anim">
+      <div class="demo-topbar">
+        <div class="demo-dot" style="background:#ef4444"></div>
+        <div class="demo-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="demo-dot" style="background:#22c55e;margin-left:4px"></div>
+        <span style="flex:1;text-align:center;font-size:12px;color:var(--muted2)">clavexis.ai — Dashboard</span>
+      </div>
+      <div class="demo-sidebar">
+        <div class="demo-nav">
+          <div style="font-size:10px;color:var(--muted2);font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 6px 8px">Workspaces</div>
+          <div class="demo-ws-item active">🚀 <span>Product Launch</span></div>
+          <div class="demo-ws-item">💻 <span>Dev Projects</span></div>
+          <div class="demo-ws-item">📧 <span>Client Emails</span></div>
+          <div class="demo-ws-item">📊 <span>Research</span></div>
+          <div class="demo-ws-item">🧪 <span>Experiments</span></div>
+        </div>
+        <div class="demo-content">
+          <div class="demo-msg ai">Hi! I'm your Clavexis assistant for the "Product Launch" workspace. I remember your product is a B2B SaaS for HR teams. How can I help today?</div>
+          <div class="demo-msg user">Write a cold email to potential enterprise clients</div>
+          <div class="demo-msg ai">Here's a targeted cold email for enterprise HR teams:<br/><br/><strong>Subject:</strong> Automate 60% of your HR workflows in 2 weeks<br/><br/>Hi [Name], I noticed [Company] is scaling fast...<div class="demo-cursor"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="section-label">
+      <h2>Everything you need to think faster</h2>
+      <p>Purpose-built AI tools that work together, per workspace</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card anim">
+        <div class="feature-icon" style="background:var(--accent-dim)">🧠</div>
+        <h3>Workspace Memory</h3>
+        <p>Each workspace remembers your projects, preferences, and past conversations. Your AI never forgets context.</p>
+      </div>
+      <div class="feature-card anim">
+        <div class="feature-icon" style="background:rgba(45,212,191,0.1)">💬</div>
+        <h3>AI Chat Assistant</h3>
+        <p>Ask anything. Get deep, context-aware answers. Clavexis understands your project background automatically.</p>
+      </div>
+      <div class="feature-card anim">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.1)">💻</div>
+        <h3>Code Assistant</h3>
+        <p>Write, debug, and refactor code with an AI that knows your tech stack and project patterns.</p>
+      </div>
+      <div class="feature-card anim">
+        <div class="feature-icon" style="background:rgba(34,197,94,0.1)">📧</div>
+        <h3>Email Assistant</h3>
+        <p>Craft professional emails in seconds. Choose tone, style, and length. Export directly to Gmail or Outlook.</p>
+      </div>
+      <div class="feature-card anim">
+        <div class="feature-icon" style="background:rgba(239,68,68,0.1)">⚡</div>
+        <h3>10 Workspaces</h3>
+        <p>Separate environments for separate projects. Switch contexts instantly without losing your train of thought.</p>
+      </div>
+      <div class="feature-card anim">
+        <div class="feature-icon" style="background:rgba(124,106,247,0.15)">🔒</div>
+        <h3>Secure & Private</h3>
+        <p>Your data is encrypted at rest and in transit. We never train on your conversations. GDPR-ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing preview on landing -->
+  <section class="pricing">
+    <div class="section-label">
+      <h2>Simple, transparent pricing</h2>
+      <p>Start free, scale when you need to</p>
+    </div>
+    <div class="pricing-grid" id="landing-pricing"></div>
+    <div style="text-align:center;margin-top:28px">
+      <button class="btn btn-ghost" onclick="showPage('pricing-page')">See full plan comparison →</button>
+    </div>
+  </section>
+
+  <footer>
+    Built with care by indie developers · <strong>Clavexis AI</strong> · <a style="color:var(--accent2)" onclick="showPage('pricing-page')">Pricing</a> · <a style="color:var(--accent2)" onclick="showPage('login')">Login</a>
+    <br/><span style="color:var(--muted2);font-size:11px;margin-top:6px;display:block">Backend: Node.js + Express · Frontend: HTML/JS · Hosted on GitHub Pages + Render</span>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     LOGIN PAGE
+══════════════════════════════════════════════════ -->
+<div id="login" class="page">
+  <nav>
+    <div class="nav-logo" onclick="showPage('landing')" style="cursor:pointer">Clavexis</div>
+    <div class="nav-links">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('landing')">← Back</button>
+    </div>
+  </nav>
+  <div class="auth-page">
+    <div class="auth-box anim">
+      <div class="auth-logo">Clavexis</div>
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Sign in to your account</div>
+      <div id="login-error" class="error-msg" style="display:none;margin-bottom:12px"></div>
+      <div class="auth-form">
+        <button class="google-btn" onclick="handleGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-divider">or</div>
+        <div class="field"><label>Email</label><input class="input" type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/></div>
+        <div class="field"><label>Password</label><input class="input" type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"/></div>
+        <button class="btn btn-primary" style="width:100%" id="login-btn" onclick="handleLogin()">Sign in</button>
+      </div>
+      <div class="auth-switch" style="margin-top:16px">No account? <a onclick="showPage('register')">Create one free</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     REGISTER PAGE
+══════════════════════════════════════════════════ -->
+<div id="register" class="page">
+  <nav>
+    <div class="nav-logo" onclick="showPage('landing')" style="cursor:pointer">Clavexis</div>
+    <div class="nav-links">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('landing')">← Back</button>
+    </div>
+  </nav>
+  <div class="auth-page">
+    <div class="auth-box anim">
+      <div class="auth-logo">Clavexis</div>
+      <div class="auth-title">Create your account</div>
+      <div class="auth-sub">Free plan · No credit card needed</div>
+      <div id="register-error" class="error-msg" style="display:none;margin-bottom:12px"></div>
+      <div class="auth-form">
+        <button class="google-btn" onclick="handleGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+          Continue with Google
+        </button>
+        <div class="auth-divider">or</div>
+        <div class="field"><label>Full name</label><input class="input" type="text" id="reg-name" placeholder="Jane Smith"/></div>
+        <div class="field"><label>Email</label><input class="input" type="email" id="reg-email" placeholder="you@example.com"/></div>
+        <div class="field"><label>Password</label><input class="input" type="password" id="reg-password" placeholder="Min 8 characters"/></div>
+        <button class="btn btn-primary" style="width:100%" id="register-btn" onclick="handleRegister()">Create account</button>
+      </div>
+      <div class="auth-switch" style="margin-top:16px">Already have an account? <a onclick="showPage('login')">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════════════ -->
+<div id="dashboard" class="page">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Clavexis</div>
+    <div class="sidebar-section">Workspaces</div>
+    <div class="ws-list" id="ws-list"></div>
+    <button class="ws-add-btn" onclick="openCreateWorkspace()">
+      <span style="font-size:16px">+</span> New workspace
+    </button>
+    <div class="sidebar-bottom">
+      <div class="user-pill" onclick="showPage('account')">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-name" id="user-name-sidebar">Loading...</div>
+        <div class="user-plan" id="user-plan-badge">free</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main area -->
+  <div class="main">
+    <div class="main-header">
+      <div class="ws-title" id="ws-title">Select a workspace</div>
+      <div class="assistant-tabs">
+        <button class="assistant-tab active" onclick="switchAssistant('chat',this)">💬 Chat</button>
+        <button class="assistant-tab" onclick="switchAssistant('code',this)">💻 Code</button>
+        <button class="assistant-tab" onclick="switchAssistant('email',this)">📧 Email</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('pricing-page')">⚡ Upgrade</button>
+    </div>
+
+    <div class="usage-bar">
+      <span>Daily usage:</span>
+      <div class="usage-track"><div class="usage-fill" id="usage-fill" style="width:0%"></div></div>
+      <span id="usage-text">0 / 20 messages</span>
+    </div>
+
+    <div style="display:flex;flex:1;overflow:hidden">
+      <!-- Conversations list -->
+      <div class="conv-panel">
+        <div class="conv-panel-header">
+          <span class="conv-panel-title">Conversations</span>
+          <button class="btn btn-sm btn-ghost" style="padding:3px 8px" onclick="newConversation()">+ New</button>
+        </div>
+        <div id="conv-list"></div>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat-area">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-welcome" id="chat-welcome">
+            <div style="font-size:40px;margin-bottom:12px">🧠</div>
+            <h3>Select a workspace to start</h3>
+            <p>Choose a workspace from the sidebar, then start a conversation with your AI assistant.</p>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <div class="chat-input-box">
+            <textarea class="chat-input" id="chat-input" rows="1" placeholder="Message your AI assistant..." onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+          <div class="chat-footer">
+            <span class="chat-hint" id="model-hint">Select a workspace to chat</span>
+            <span class="chat-hint" id="assistant-hint">Chat mode</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory panel -->
+      <div class="memory-panel">
+        <div class="memory-header">
+          <span>Memory</span>
+          <button class="btn btn-sm btn-ghost" style="padding:3px 8px;font-size:11px" onclick="openAddMemory()">+ Pin</button>
+        </div>
+        <div class="memory-list" id="memory-list">
+          <div style="padding:12px;font-size:12px;color:var(--muted2);text-align:center">No memories yet.<br/>Pin facts to remember.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     PRICING PAGE
+══════════════════════════════════════════════════ -->
+<div id="pricing-page" class="page">
+  <nav>
+    <div class="nav-logo" onclick="showPage('landing')" style="cursor:pointer">Clavexis</div>
+    <div class="nav-links">
+      <button class="btn btn-ghost btn-sm" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('register')">Start free</button>
+    </div>
+  </nav>
+  <div class="pricing-page-inner" style="padding-top:80px">
+    <div class="pricing-hero anim">
+      <h1>Simple, honest pricing</h1>
+      <p>Scale from hobby to enterprise. No hidden fees. Cancel anytime.</p>
+      <div class="pricing-toggle">
+        <span>Monthly</span>
+        <div class="toggle-switch" id="billing-toggle" onclick="toggleBilling()"><div class="toggle-knob"></div></div>
+        <span>Annual</span>
+        <span class="save-badge">Save 20%</span>
+      </div>
+    </div>
+    <div class="pricing-grid" id="full-pricing-grid"></div>
+
+    <!-- Feature comparison table -->
+    <div style="margin-top:60px">
+      <h2 style="font-family:var(--font-head);font-size:24px;font-weight:700;text-align:center;margin-bottom:28px">Full feature comparison</h2>
+      <div class="card" style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="padding:10px 14px;text-align:left;color:var(--muted);font-weight:600">Feature</th>
+              <th style="padding:10px 14px;text-align:center;color:var(--muted);font-weight:600">Free</th>
+              <th style="padding:10px 14px;text-align:center;color:var(--muted);font-weight:600">Starter</th>
+              <th style="padding:10px 14px;text-align:center;color:var(--accent2);font-weight:600">Pro</th>
+              <th style="padding:10px 14px;text-align:center;color:var(--amber);font-weight:600">Elite</th>
+            </tr>
+          </thead>
+          <tbody id="compare-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ACCOUNT PAGE
+══════════════════════════════════════════════════ -->
+<div id="account" class="page">
+  <nav>
+    <div class="nav-logo" onclick="showPage('dashboard')" style="cursor:pointer">Clavexis</div>
+    <div class="nav-links">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('dashboard')">← Dashboard</button>
+    </div>
+  </nav>
+  <div style="padding:80px 24px 24px">
+    <div class="settings-page anim">
+      <div class="settings-title">Account Settings</div>
+
+      <div class="settings-section">
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">Name<span id="acct-name">—</span></div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Email<span id="acct-email">—</span></div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Plan<span id="acct-plan">—</span></div>
+            <button class="btn btn-sm btn-primary" onclick="showPage('pricing-page')">Upgrade</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--muted)">BILLING</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">Subscription<span id="acct-status">Free</span></div>
+            <button class="btn btn-sm btn-secondary" id="billing-portal-btn" onclick="openBillingPortal()" style="display:none">Manage</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">Sign out<span>Sign out of all devices</span></div>
+            <button class="btn btn-sm btn-danger" onclick="handleLogout()">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════ -->
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="closeModal(event)">
+  <!-- Create workspace -->
+  <div class="modal" id="modal-create-ws" style="display:none">
+    <div class="modal-header">
+      <div class="modal-title">New Workspace</div>
+      <button class="modal-close" onclick="closeAllModals()">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="field">
+        <label>Name</label>
+        <input class="input" id="new-ws-name" placeholder="My Project" maxlength="50"/>
+      </div>
+      <div class="field">
+        <label>Emoji</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="emoji-picker"></div>
+      </div>
+      <button class="btn btn-primary" onclick="createWorkspace()">Create workspace</button>
+    </div>
+  </div>
+
+  <!-- Edit workspace -->
+  <div class="modal" id="modal-edit-ws" style="display:none">
+    <div class="modal-header">
+      <div class="modal-title">Edit Workspace</div>
+      <button class="modal-close" onclick="closeAllModals()">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="field"><label>Name</label><input class="input" id="edit-ws-name" maxlength="50"/></div>
+      <div class="field">
+        <label>Emoji</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="edit-emoji-picker"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="saveWorkspace()">Save</button>
+        <button class="btn btn-danger" onclick="deleteWorkspace()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add memory -->
+  <div class="modal" id="modal-add-memory" style="display:none">
+    <div class="modal-header">
+      <div class="modal-title">Pin a Memory</div>
+      <button class="modal-close" onclick="closeAllModals()">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="field">
+        <label>Type</label>
+        <select class="input" id="memory-type-select">
+          <option value="fact">Fact</option>
+          <option value="preference">Preference</option>
+          <option value="summary">Summary</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Content</label>
+        <textarea class="input" id="memory-content" placeholder="e.g. The user is building a B2B SaaS for HR teams using React and Node.js"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="addMemory()">Pin memory</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+const API = 'https://YOUR-BACKEND.onrender.com'; // ← change this
+
+const state = {
+  token: null,
+  user: null,
+  workspaces: [],
+  activeWs: null,
+  conversations: [],
+  activeConv: null,
+  messages: [],
+  memories: [],
+  assistantType: 'chat',
+  isStreaming: false,
+  usage: { used: 0, limit: 20 },
+  editingWsId: null,
+  selectedEmoji: '🧠',
+  annualBilling: false,
+};
+
+// ══════════════════════════════════════════════════
+// ROUTING
+// ══════════════════════════════════════════════════
+let prevPage = 'landing';
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('active'); prevPage = id; }
+  if (id === 'dashboard') initDashboard();
+  if (id === 'pricing-page') renderPricingPage();
+  if (id === 'account') renderAccount();
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  const prev = prevPage === 'pricing-page' ? 'landing' : prevPage;
+  showPage(prev || 'landing');
+}
+
+function scrollTo(sel) {
+  document.querySelector(sel)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Check for token in URL hash (Google OAuth callback)
+function checkAuthCallback() {
+  const hash = window.location.hash;
+  if (hash.includes('/auth/callback')) {
+    const params = new URLSearchParams(hash.split('?')[1] || '');
+    const token = params.get('token');
+    if (token) {
+      state.token = token;
+      window.location.hash = '';
+      fetchUser().then(() => showPage('dashboard'));
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════
+// API HELPERS
+// ══════════════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(state.token ? { Authorization: `Bearer ${state.token}` } : {}) },
+    credentials: 'include',
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+
+  if (res.status === 401) {
+    // Try refresh
+    const r2 = await fetch(API + '/api/auth/refresh', { method: 'POST', credentials: 'include' });
+    if (r2.ok) {
+      const d = await r2.json();
+      state.token = d.accessToken;
+      opts.headers.Authorization = `Bearer ${state.token}`;
+      const res2 = await fetch(API + path, opts);
+      if (!res2.ok) throw new Error(await res2.text());
+      return res2.json();
+    } else {
+      logout(); throw new Error('Session expired');
+    }
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || 'Request failed');
+  }
+  if (res.status === 204) return {};
+  return res.json();
+}
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+async function handleLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in...';
+
+  try {
+    // Demo mode: bypass backend if API is placeholder
+    if (API.includes('YOUR-BACKEND')) {
+      state.user = { id: 'demo', name: email.split('@')[0] || 'User', email, plan: 'pro' };
+      state.token = 'demo-token';
+      loadDemoData();
+      showPage('dashboard');
+      toast('Logged in (demo mode)', 'info');
+      return;
+    }
+    const d = await api('POST', '/api/auth/login', { email, password });
+    state.token = d.accessToken; state.user = d.user;
+    showPage('dashboard');
+  } catch (err) {
+    errEl.textContent = err.message; errEl.style.display = 'block';
+  } finally { btn.disabled = false; btn.textContent = 'Sign in'; }
+}
+
+async function handleRegister() {
+  const name = document.getElementById('reg-name').value;
+  const email = document.getElementById('reg-email').value;
+  const password = document.getElementById('reg-password').value;
+  const errEl = document.getElementById('register-error');
+  const btn = document.getElementById('register-btn');
+
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Creating account...';
+
+  try {
+    if (API.includes('YOUR-BACKEND')) {
+      state.user = { id: 'demo', name, email, plan: 'free' };
+      state.token = 'demo-token';
+      loadDemoData();
+      showPage('dashboard');
+      toast('Account created (demo mode)', 'success');
+      return;
+    }
+    const d = await api('POST', '/api/auth/register', { name, email, password });
+    state.token = d.accessToken; state.user = d.user;
+    showPage('dashboard');
+  } catch (err) {
+    errEl.textContent = err.message; errEl.style.display = 'block';
+  } finally { btn.disabled = false; btn.textContent = 'Create account'; }
+}
+
+function handleGoogleLogin() {
+  if (API.includes('YOUR-BACKEND')) { toast('Set your API URL first!', 'error'); return; }
+  window.location.href = `${API}/api/auth/google`;
+}
+
+async function handleLogout() {
+  try { await api('POST', '/api/auth/logout'); } catch {}
+  logout();
+}
+
+function logout() {
+  state.token = null; state.user = null; state.workspaces = [];
+  state.activeWs = null; state.activeConv = null; state.messages = [];
+  showPage('landing');
+}
+
+async function fetchUser() {
+  const d = await api('GET', '/api/auth/me');
+  state.user = d.user;
+}
+
+// ══════════════════════════════════════════════════
+// DEMO DATA (when backend not connected)
+// ══════════════════════════════════════════════════
+function loadDemoData() {
+  state.workspaces = [
+    { id: 'ws1', name: 'My First Project', emoji: '🚀', position: 0 },
+    { id: 'ws2', name: 'Code Sandbox', emoji: '💻', position: 1 },
+    { id: 'ws3', name: 'Email Templates', emoji: '📧', position: 2 },
+  ];
+  state.usage = { used: 5, limit: 20 };
+}
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+async function initDashboard() {
+  if (!state.user) return;
+
+  // Update sidebar user info
+  const initials = (state.user.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-name-sidebar').textContent = state.user.name || state.user.email;
+  document.getElementById('user-plan-badge').textContent = state.user.plan || 'free';
+
+  // Load workspaces
+  if (!API.includes('YOUR-BACKEND')) {
+    try {
+      const d = await api('GET', '/api/workspaces');
+      state.workspaces = d.workspaces || [];
+    } catch (e) { toast(e.message, 'error'); }
+  }
+  renderWorkspaces();
+
+  // Load usage
+  if (!API.includes('YOUR-BACKEND')) {
+    try {
+      const d = await api('GET', '/api/ai/usage');
+      state.usage = d;
+    } catch {}
+  }
+  renderUsage();
+
+  if (state.workspaces.length && !state.activeWs) {
+    selectWorkspace(state.workspaces[0]);
+  }
+
+  document.getElementById('chat-input').addEventListener('input', () => {
+    const v = document.getElementById('chat-input').value.trim();
+    document.getElementById('send-btn').disabled = !v || state.isStreaming || !state.activeWs;
+  });
+}
+
+function renderWorkspaces() {
+  const list = document.getElementById('ws-list');
+  list.innerHTML = state.workspaces.map(ws => `
+    <div class="ws-item ${state.activeWs?.id === ws.id ? 'active' : ''}" onclick="selectWorkspace(${JSON.stringify(ws).replace(/"/g,'&quot;')})">
+      <span class="ws-item-emoji">${ws.emoji}</span>
+      <span class="ws-item-name">${ws.name}</span>
+      <span style="opacity:0;font-size:11px;color:var(--muted2)" class="ws-edit-btn" 
+        onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0"
+        onclick="event.stopPropagation();openEditWorkspace('${ws.id}')">✎</span>
+    </div>
+  `).join('');
+}
+
+function renderUsage() {
+  const { used, limit } = state.usage;
+  const pct = limit ? Math.min(100, (used / limit) * 100) : 0;
+  document.getElementById('usage-fill').style.width = pct + '%';
+  document.getElementById('usage-fill').style.background = pct > 80 ? 'var(--red)' : 'var(--accent)';
+  document.getElementById('usage-text').textContent = limit ? `${used} / ${limit} messages` : `${used} messages (unlimited)`;
+}
+
+async function selectWorkspace(ws) {
+  state.activeWs = ws;
+  state.activeConv = null;
+  state.messages = [];
+  renderWorkspaces();
+  document.getElementById('ws-title').textContent = `${ws.emoji} ${ws.name}`;
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('chat-input').placeholder = `Message ${ws.name} AI...`;
+
+  const plan = state.user?.plan || 'free';
+  const models = { free: 'GPT-3.5', starter: 'GPT-3.5', pro: 'GPT-4o-mini', elite: 'GPT-4o' };
+  document.getElementById('model-hint').textContent = `Model: ${models[plan] || 'GPT-3.5'} · ${plan} plan`;
+
+  // Load conversations
+  await loadConversations();
+  await loadMemories();
+  renderChatMessages();
+}
+
+async function loadConversations() {
+  if (!state.activeWs) return;
+  if (API.includes('YOUR-BACKEND')) {
+    state.conversations = [{ id: 'conv1', title: 'New conversation', assistant_type: state.assistantType, created_at: new Date().toISOString() }];
+    state.activeConv = state.conversations[0];
+    renderConversations();
+    return;
+  }
+  try {
+    const d = await api('GET', `/api/workspaces/${state.activeWs.id}/conversations`);
+    state.conversations = d.conversations || [];
+    if (!state.activeConv && state.conversations.length) {
+      state.activeConv = state.conversations[0];
+      await loadMessages();
+    }
+  } catch (e) { toast(e.message, 'error'); }
+  renderConversations();
+}
+
+function renderConversations() {
+  const list = document.getElementById('conv-list');
+  if (!state.conversations.length) {
+    list.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted2);text-align:center">No conversations yet</div>';
+    return;
+  }
+  list.innerHTML = state.conversations.map(c => `
+    <div class="conv-item ${state.activeConv?.id === c.id ? 'active' : ''}" onclick="selectConversation('${c.id}')">
+      <div class="conv-item-title">${c.title || 'Conversation'}</div>
+      <div class="conv-item-meta">${c.assistant_type || 'chat'} · ${timeAgo(c.created_at)}</div>
+    </div>
+  `).join('');
+}
+
+async function selectConversation(id) {
+  state.activeConv = state.conversations.find(c => c.id === id);
+  renderConversations();
+  await loadMessages();
+  renderChatMessages();
+}
+
+async function loadMessages() {
+  if (!state.activeConv || API.includes('YOUR-BACKEND')) { state.messages = []; return; }
+  try {
+    const d = await api('GET', `/api/workspaces/${state.activeWs.id}/conversations/${state.activeConv.id}/messages`);
+    state.messages = d.messages || [];
+  } catch {}
+}
+
+async function newConversation() {
+  if (!state.activeWs) { toast('Select a workspace first', 'error'); return; }
+  if (API.includes('YOUR-BACKEND')) {
+    const c = { id: 'conv' + Date.now(), title: 'New conversation', assistant_type: state.assistantType, created_at: new Date().toISOString() };
+    state.conversations.unshift(c);
+    state.activeConv = c;
+    state.messages = [];
+    renderConversations();
+    renderChatMessages();
+    return;
+  }
+  try {
+    const d = await api('POST', `/api/workspaces/${state.activeWs.id}/conversations`, { assistant_type: state.assistantType });
+    state.conversations.unshift(d.conversation);
+    state.activeConv = d.conversation;
+    state.messages = [];
+    renderConversations();
+    renderChatMessages();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function renderChatMessages() {
+  const container = document.getElementById('chat-messages');
+  const welcome = document.getElementById('chat-welcome');
+
+  if (!state.activeWs) {
+    welcome.style.display = 'block';
+    container.innerHTML = '';
+    container.appendChild(welcome);
+    return;
+  }
+
+  if (!state.messages.length) {
+    const prompts = {
+      chat: ['Summarize what I\'m working on', 'What should I focus on today?', 'Help me brainstorm ideas'],
+      code: ['Review my code', 'Help me debug this', 'Write a function for me'],
+      email: ['Draft a follow-up email', 'Write a cold outreach', 'Reply professionally to feedback'],
+    };
+    const qs = prompts[state.assistantType] || prompts.chat;
+    container.innerHTML = `
+      <div class="chat-welcome" id="chat-welcome">
+        <div style="font-size:36px;margin-bottom:12px">${state.activeWs.emoji}</div>
+        <h3>${state.activeWs.name}</h3>
+        <p>Start a conversation. Your AI remembers this workspace's context.</p>
+        <div class="quick-prompts">
+          ${qs.map(q => `<button class="quick-prompt" onclick="quickPrompt('${q}')">${q}</button>`).join('')}
+        </div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = state.messages.map(m => renderMessage(m.role, m.content)).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function renderMessage(role, content) {
+  const isUser = role === 'user';
+  const initials = isUser ? (state.user?.name || 'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : 'AI';
+  const formatted = formatContent(content);
+  return `
+    <div class="msg-row ${isUser ? 'user' : 'ai'}">
+      <div class="msg-avatar ${isUser ? 'user' : 'ai'}">${initials}</div>
+      <div class="msg-bubble ${isUser ? 'user' : 'ai'}">${formatted}</div>
+    </div>`;
+}
+
+function formatContent(text) {
+  // Basic markdown-like formatting
+  return text
+    .replace(/```(\w*)\n([\s\S]*?)```/g, (_,lang,code) => `<pre><code>${escHtml(code.trim())}</code></pre>`)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br/>');
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function quickPrompt(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  if (!message || state.isStreaming) return;
+  if (!state.activeWs) { toast('Select a workspace first', 'error'); return; }
+
+  // Add user message
+  state.messages.push({ role: 'user', content: message });
+  input.value = ''; input.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+  renderChatMessages();
+
+  const container = document.getElementById('chat-messages');
+
+  // Add AI typing row
+  const aiRowId = 'ai-row-' + Date.now();
+  const aiRow = document.createElement('div');
+  aiRow.className = 'msg-row ai';
+  aiRow.id = aiRowId;
+  aiRow.innerHTML = `
+    <div class="msg-avatar ai">AI</div>
+    <div class="msg-bubble ai"><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  container.appendChild(aiRow);
+  container.scrollTop = container.scrollHeight;
+
+  state.isStreaming = true;
+  let aiContent = '';
+
+  try {
+    if (API.includes('YOUR-BACKEND')) {
+      // Demo: use Anthropic API via the artifact API
+      await streamDemoResponse(message, aiRow, (text) => { aiContent = text; });
+    } else {
+      // Real backend SSE streaming
+      const res = await fetch(`${API}/api/ai/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.token}` },
+        body: JSON.stringify({
+          message,
+          conversationId: state.activeConv?.id,
+          workspaceId: state.activeWs?.id,
+          assistantType: state.assistantType,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'AI request failed');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      const bubble = aiRow.querySelector('.msg-bubble');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const lines = decoder.decode(value).split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data:')) continue;
+          try {
+            const data = JSON.parse(line.slice(5));
+            if (data.type === 'delta') {
+              aiContent += data.content;
+              bubble.innerHTML = formatContent(aiContent);
+              container.scrollTop = container.scrollHeight;
+            }
+            if (data.type === 'error') throw new Error(data.error);
+          } catch {}
+        }
+      }
+    }
+
+    state.messages.push({ role: 'assistant', content: aiContent });
+    state.usage.used++;
+    renderUsage();
+
+  } catch (err) {
+    aiRow.querySelector('.msg-bubble').innerHTML = `<span style="color:var(--red)">${err.message}</span>`;
+    toast(err.message, 'error');
+  }
+
+  state.isStreaming = false;
+  const inputEl = document.getElementById('chat-input');
+  document.getElementById('send-btn').disabled = !inputEl.value.trim();
+}
+
+async function streamDemoResponse(message, aiRow, onUpdate) {
+  const bubble = aiRow.querySelector('.msg-bubble');
+  const responses = {
+    default: "I'm Clavexis AI, running in demo mode. Connect your backend at the API URL in the code to get real AI responses. For now, I can show you how the interface works!\n\nYour workspace memory, conversation history, and streaming responses will all work seamlessly once connected.",
+    code: "```javascript\n// Example function\nfunction greet(name) {\n  return `Hello, ${name}! Welcome to Clavexis.`;\n}\n\nconsole.log(greet('World'));\n```\n\nThis is demo mode — connect your backend for real GPT-4o code generation!",
+    email: "**Subject:** Following up on our conversation\n\nDear [Name],\n\nI hope this message finds you well. I wanted to follow up on our recent discussion...\n\n*[Connect your backend for real email drafting with context memory]*\n\nBest regards,\n[Your Name]",
+  };
+
+  const keywords = message.toLowerCase();
+  const response = keywords.includes('code') || keywords.includes('function') ? responses.code
+    : keywords.includes('email') || keywords.includes('draft') ? responses.email
+    : responses.default;
+
+  let i = 0;
+  let text = '';
+  return new Promise(resolve => {
+    const interval = setInterval(() => {
+      if (i >= response.length) { clearInterval(interval); onUpdate(text); resolve(); return; }
+      const chunk = response.slice(i, i + 3);
+      text += chunk; i += 3;
+      bubble.innerHTML = formatContent(text);
+      document.getElementById('chat-messages').scrollTop = 999999;
+    }, 20);
+  });
+}
+
+function switchAssistant(type, btn) {
+  state.assistantType = type;
+  document.querySelectorAll('.assistant-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const hints = { chat: 'Chat mode', code: 'Code mode', email: 'Email mode' };
+  document.getElementById('assistant-hint').textContent = hints[type];
+  if (state.activeWs && !state.messages.length) renderChatMessages();
+}
+
+function handleInputKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ══════════════════════════════════════════════════
+// WORKSPACES CRUD
+// ══════════════════════════════════════════════════
+const EMOJIS = ['🧠','🚀','💻','📧','📊','🔬','🎯','💡','📝','🏗️','⚡','🌐','🎨','🔒','📱'];
+
+function openCreateWorkspace() {
+  state.selectedEmoji = '🧠';
+  document.getElementById('new-ws-name').value = '';
+  renderEmojiPicker('emoji-picker', 'new');
+  showModal('modal-create-ws');
+}
+
+function openEditWorkspace(id) {
+  const ws = state.workspaces.find(w => w.id === id);
+  if (!ws) return;
+  state.editingWsId = id;
+  state.selectedEmoji = ws.emoji;
+  document.getElementById('edit-ws-name').value = ws.name;
+  renderEmojiPicker('edit-emoji-picker', 'edit');
+  showModal('modal-edit-ws');
+}
+
+function renderEmojiPicker(containerId, prefix) {
+  document.getElementById(containerId).innerHTML = EMOJIS.map(e => `
+    <button onclick="selectEmoji('${e}','${prefix}')" style="font-size:22px;background:${e===state.selectedEmoji?'var(--accent-dim)':'var(--bg3)'};border:1px solid ${e===state.selectedEmoji?'var(--accent)':'var(--border)'};padding:6px;border-radius:var(--r2);cursor:pointer;transition:all 0.15s">${e}</button>
+  `).join('');
+}
+
+function selectEmoji(e, prefix) {
+  state.selectedEmoji = e;
+  renderEmojiPicker(prefix === 'new' ? 'emoji-picker' : 'edit-emoji-picker', prefix);
+}
+
+async function createWorkspace() {
+  const name = document.getElementById('new-ws-name').value.trim();
+  if (!name) { toast('Enter a name', 'error'); return; }
+
+  if (API.includes('YOUR-BACKEND')) {
+    const ws = { id: 'ws' + Date.now(), name, emoji: state.selectedEmoji, position: state.workspaces.length };
+    state.workspaces.push(ws);
+    closeAllModals();
+    renderWorkspaces();
+    selectWorkspace(ws);
+    toast('Workspace created', 'success');
+    return;
+  }
+  try {
+    const d = await api('POST', '/api/workspaces', { name, emoji: state.selectedEmoji });
+    state.workspaces.push(d.workspace);
+    closeAllModals();
+    renderWorkspaces();
+    selectWorkspace(d.workspace);
+    toast('Workspace created', 'success');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function saveWorkspace() {
+  const name = document.getElementById('edit-ws-name').value.trim();
+  if (!name) { toast('Enter a name', 'error'); return; }
+
+  if (API.includes('YOUR-BACKEND')) {
+    const ws = state.workspaces.find(w => w.id === state.editingWsId);
+    if (ws) { ws.name = name; ws.emoji = state.selectedEmoji; }
+    closeAllModals();
+    if (state.activeWs?.id === state.editingWsId) { state.activeWs = ws; document.getElementById('ws-title').textContent = `${ws.emoji} ${ws.name}`; }
+    renderWorkspaces();
+    toast('Workspace updated', 'success');
+    return;
+  }
+  try {
+    const d = await api('PATCH', `/api/workspaces/${state.editingWsId}`, { name, emoji: state.selectedEmoji });
+    const idx = state.workspaces.findIndex(w => w.id === state.editingWsId);
+    if (idx >= 0) state.workspaces[idx] = d.workspace;
+    if (state.activeWs?.id === state.editingWsId) { state.activeWs = d.workspace; document.getElementById('ws-title').textContent = `${d.workspace.emoji} ${d.workspace.name}`; }
+    closeAllModals();
+    renderWorkspaces();
+    toast('Workspace updated', 'success');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function deleteWorkspace() {
+  if (!confirm('Delete this workspace and all its conversations?')) return;
+  if (API.includes('YOUR-BACKEND')) {
+    state.workspaces = state.workspaces.filter(w => w.id !== state.editingWsId);
+    if (state.activeWs?.id === state.editingWsId) { state.activeWs = state.workspaces[0] || null; state.messages = []; renderChatMessages(); }
+    closeAllModals();
+    renderWorkspaces();
+    toast('Workspace deleted', 'info');
+    return;
+  }
+  try {
+    await api('DELETE', `/api/workspaces/${state.editingWsId}`);
+    state.workspaces = state.workspaces.filter(w => w.id !== state.editingWsId);
+    if (state.activeWs?.id === state.editingWsId) { state.activeWs = null; state.messages = []; renderChatMessages(); }
+    closeAllModals();
+    renderWorkspaces();
+    toast('Workspace deleted', 'info');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════
+// MEMORY
+// ══════════════════════════════════════════════════
+async function loadMemories() {
+  if (!state.activeWs) return;
+  if (API.includes('YOUR-BACKEND')) {
+    state.memories = [
+      { id: 'm1', memory_type: 'fact', content: 'Demo workspace — connect backend for real memory' }
+    ];
+    renderMemories(); return;
+  }
+  try {
+    const d = await api('GET', `/api/workspaces/${state.activeWs.id}/memory`);
+    state.memories = d.memory || [];
+    renderMemories();
+  } catch {}
+}
+
+function renderMemories() {
+  const list = document.getElementById('memory-list');
+  if (!state.memories.length) {
+    list.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--muted2);text-align:center">No memories yet.<br/>Pin facts to remember.</div>';
+    return;
+  }
+  list.innerHTML = state.memories.map(m => `
+    <div class="memory-item">
+      <div class="memory-type">${m.memory_type}</div>
+      ${m.content}
+      <button class="memory-del" onclick="deleteMemory('${m.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function openAddMemory() {
+  if (!state.activeWs) { toast('Select a workspace first', 'error'); return; }
+  document.getElementById('memory-content').value = '';
+  showModal('modal-add-memory');
+}
+
+async function addMemory() {
+  const content = document.getElementById('memory-content').value.trim();
+  const memory_type = document.getElementById('memory-type-select').value;
+  if (!content) { toast('Enter content', 'error'); return; }
+
+  if (API.includes('YOUR-BACKEND')) {
+    state.memories.unshift({ id: 'm' + Date.now(), memory_type, content });
+    closeAllModals(); renderMemories(); toast('Memory pinned', 'success'); return;
+  }
+  try {
+    const d = await api('POST', `/api/workspaces/${state.activeWs.id}/memory`, { content, memory_type });
+    state.memories.unshift(d.memory);
+    closeAllModals(); renderMemories(); toast('Memory pinned', 'success');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function deleteMemory(id) {
+  if (API.includes('YOUR-BACKEND')) {
+    state.memories = state.memories.filter(m => m.id !== id);
+    renderMemories(); return;
+  }
+  try {
+    await api('DELETE', `/api/workspaces/${state.activeWs.id}/memory/${id}`);
+    state.memories = state.memories.filter(m => m.id !== id);
+    renderMemories();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════
+// PRICING
+// ══════════════════════════════════════════════════
+const PLANS = [
+  {
+    id: 'free', name: 'Free', monthly: 0, color: 'var(--muted)',
+    desc: 'Try Clavexis with no commitment',
+    features: ['3 workspaces', '20 messages/day', 'GPT-3.5 model', '2k context memory'],
+    nope: ['Code assistant', 'Email assistant', 'File memory'],
+  },
+  {
+    id: 'starter', name: 'Starter', monthly: 9, color: 'var(--teal)',
+    desc: 'For individuals and freelancers',
+    features: ['5 workspaces', '100 messages/day', 'GPT-3.5 model', '8k context memory', 'Code assistant', 'Email assistant'],
+    nope: ['File memory', 'Priority support'],
+  },
+  {
+    id: 'pro', name: 'Pro', monthly: 19, color: 'var(--accent2)', featured: true,
+    desc: 'For power users and small teams',
+    features: ['10 workspaces', '500 messages/day', 'GPT-4o-mini model', '32k context memory', 'Code assistant', 'Email assistant', 'File memory', 'Priority support'],
+    nope: [],
+  },
+  {
+    id: 'elite', name: 'Elite', monthly: 49, color: 'var(--amber)',
+    desc: 'For professionals who need the best',
+    features: ['10 workspaces', 'Unlimited messages', 'GPT-4o model', '128k context memory', 'All assistants', 'File memory', 'Priority support', 'PC automation (coming soon)'],
+    nope: [],
+  },
+];
+
+function renderPricingCards(containerId, annual) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = PLANS.map(p => {
+    const price = p.monthly === 0 ? 0 : annual ? Math.round(p.monthly * 0.8) : p.monthly;
+    return `
+    <div class="plan-card ${p.featured ? 'featured' : ''}">
+      <div class="plan-name" style="color:${p.color}">${p.name}</div>
+      <div class="plan-price">${price === 0 ? 'Free' : '$' + price}<span>${price === 0 ? '' : '/mo'}</span></div>
+      <div class="plan-desc">${p.desc}</div>
+      <hr class="plan-divider"/>
+      <ul class="plan-features">
+        ${p.features.map(f => `<li>${f}</li>`).join('')}
+        ${p.nope.map(f => `<li class="no">${f}</li>`).join('')}
+      </ul>
+      ${p.monthly === 0
+        ? `<button class="btn btn-ghost" style="width:100%" onclick="showPage('register')">Get started free</button>`
+        : `<button class="btn btn-primary" style="width:100%;background:${p.featured?'var(--accent)':'var(--bg3)'};${p.featured?'':'color:var(--text);border:1px solid var(--border2)'}" onclick="handleCheckout('${p.id}')">Get ${p.name}</button>`
+      }
+    </div>`;
+  }).join('');
+}
+
+function renderPricingPage() {
+  renderPricingCards('full-pricing-grid', state.annualBilling);
+  renderCompareTable();
+}
+
+function toggleBilling() {
+  state.annualBilling = !state.annualBilling;
+  const toggle = document.getElementById('billing-toggle');
+  toggle.classList.toggle('on', state.annualBilling);
+  renderPricingCards('full-pricing-grid', state.annualBilling);
+}
+
+function renderCompareTable() {
+  const rows = [
+    ['Workspaces', '3', '5', '10', '10'],
+    ['Messages/day', '20', '100', '500', 'Unlimited'],
+    ['AI model', 'GPT-3.5', 'GPT-3.5', 'GPT-4o-mini', 'GPT-4o'],
+    ['Context memory', '2k', '8k', '32k', '128k'],
+    ['Chat assistant', '✓', '✓', '✓', '✓'],
+    ['Code assistant', '✗', '✓', '✓', '✓'],
+    ['Email assistant', '✗', '✓', '✓', '✓'],
+    ['File memory', '✗', '✗', '✓', '✓'],
+    ['Priority support', '✗', '✗', '✓', '✓'],
+    ['PC automation', '✗', '✗', '✗', 'Soon'],
+  ];
+  document.getElementById('compare-table').innerHTML = rows.map((r, i) => `
+    <tr style="border-bottom:1px solid var(--border);${i%2===0?'background:rgba(255,255,255,0.01)':''}">
+      <td style="padding:10px 14px;color:var(--muted);font-weight:500">${r[0]}</td>
+      ${[1,2,3,4].map(j => `<td style="padding:10px 14px;text-align:center;color:${r[j]==='✗'?'var(--muted2)':r[j]==='✓'?'var(--green)':'var(--text)'}">${r[j]}</td>`).join('')}
+    </tr>`).join('');
+}
+
+async function handleCheckout(planId) {
+  if (!state.token) { showPage('register'); return; }
+  if (API.includes('YOUR-BACKEND')) { toast('Connect your backend + Stripe to enable billing', 'info'); return; }
+  try {
+    const d = await api('POST', '/api/billing/checkout', { plan: planId });
+    window.location.href = d.url;
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// Render landing pricing
+renderPricingCards('landing-pricing', false);
+
+// ══════════════════════════════════════════════════
+// ACCOUNT
+// ══════════════════════════════════════════════════
+function renderAccount() {
+  if (!state.user) return;
+  document.getElementById('acct-name').textContent = state.user.name || '—';
+  document.getElementById('acct-email').textContent = state.user.email || '—';
+  document.getElementById('acct-plan').textContent = (state.user.plan || 'free').charAt(0).toUpperCase() + (state.user.plan || 'free').slice(1);
+  document.getElementById('acct-status').textContent = state.user.subscription_status || (state.user.plan === 'free' ? 'Free plan' : 'Active');
+  if (state.user.plan !== 'free') document.getElementById('billing-portal-btn').style.display = 'inline-flex';
+}
+
+async function openBillingPortal() {
+  try {
+    const d = await api('POST', '/api/billing/portal');
+    window.location.href = d.url;
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════════════
+function showModal(id) {
+  document.getElementById('modal-overlay').style.display = 'flex';
+  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
+
+function closeAllModals() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeAllModals();
+}
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toast');
+  const el = document.createElement('div');
+  el.className = `toast-item toast-${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ══════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+checkAuthCallback();
+
+// Check if already logged in (demo)
+if (window.location.hash.includes('dashboard')) {
+  showPage('dashboard');
+}
+</script>
+</body>
+</html>
