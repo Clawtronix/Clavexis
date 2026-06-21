@@ -1001,6 +1001,248 @@
     }
 
     /* ═══════════════════════════════════════
+       SCROLL PROGRESS BAR
+    ═══════════════════════════════════════ */
+    #scrollBar {
+      position: fixed; top: 0; left: 0; z-index: 9999;
+      height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      transition: width 0.05s linear;
+      box-shadow: 0 0 8px rgba(0,229,255,0.6);
+    }
+
+    /* ═══════════════════════════════════════
+       CURSOR TRAIL CANVAS
+    ═══════════════════════════════════════ */
+    #cursorCanvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 9998;
+    }
+
+    /* ═══════════════════════════════════════
+       TECH STACK MARQUEE
+    ═══════════════════════════════════════ */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.1rem 0;
+      background: var(--surface);
+      position: relative;
+    }
+    .marquee-wrap::before,
+    .marquee-wrap::after {
+      content: ''; position: absolute;
+      top: 0; bottom: 0; width: 80px; z-index: 2;
+      pointer-events: none;
+    }
+    .marquee-wrap::before { left: 0; background: linear-gradient(90deg, var(--surface), transparent); }
+    .marquee-wrap::after  { right: 0; background: linear-gradient(-90deg, var(--surface), transparent); }
+    .marquee-track {
+      display: flex; gap: 0; width: max-content;
+      animation: marquee 30s linear infinite;
+    }
+    .marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0 2rem; white-space: nowrap;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted);
+      border-right: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+    .marquee-item:hover { color: var(--cyan); }
+    .marquee-item span { font-size: 1rem; }
+
+    /* ═══════════════════════════════════════
+       TIMELINE
+    ═══════════════════════════════════════ */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--cyan), var(--purple), transparent);
+    }
+    .tl-item {
+      position: relative;
+      padding: 0 0 2.5rem 1.75rem;
+      opacity: 0; transform: translateX(-20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: none; }
+    .tl-dot {
+      position: absolute; left: -2.35rem; top: 0.25rem;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--cyan);
+      box-shadow: 0 0 10px rgba(0,229,255,0.5);
+    }
+    .tl-dot.purple { border-color: var(--purple); box-shadow: 0 0 10px rgba(124,58,237,0.5); }
+    .tl-date {
+      font-family: 'Orbitron', monospace; font-size: 0.62rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 0.4rem;
+    }
+    .tl-date.purple { color: var(--purple); }
+    .tl-title {
+      font-family: 'Orbitron', monospace; font-size: 0.88rem;
+      font-weight: 700; color: var(--text); margin-bottom: 0.35rem;
+      letter-spacing: 0.04em;
+    }
+    .tl-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       TESTIMONIALS
+    ═══════════════════════════════════════ */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .testi-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.5rem;
+      transition: all 0.25s; position: relative;
+    }
+    .testi-card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-3px); box-shadow: 0 0 22px rgba(124,58,237,0.15); }
+    .testi-quote {
+      font-size: 2rem; color: var(--purple); line-height: 1;
+      margin-bottom: 0.75rem; opacity: 0.6;
+    }
+    .testi-text { font-size: 0.87rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.25rem; font-style: italic; }
+    .testi-author { font-family: 'Orbitron', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text); }
+    .testi-role { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ═══════════════════════════════════════
+       DISCORD + TWITCH WIDGETS
+    ═══════════════════════════════════════ */
+    .community-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .community-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 0.75rem;
+      transition: all 0.25s; text-decoration: none;
+    }
+    .community-card.discord:hover { border-color: #5865F2; box-shadow: 0 0 22px rgba(88,101,242,0.2); transform: translateY(-3px); }
+    .community-card.twitch:hover  { border-color: #9146FF; box-shadow: 0 0 22px rgba(145,70,255,0.2); transform: translateY(-3px); }
+    .community-card-head { display: flex; align-items: center; gap: 0.75rem; }
+    .community-card-head i { font-size: 1.5rem; }
+    .community-card.discord .community-card-head i { color: #5865F2; }
+    .community-card.twitch  .community-card-head i { color: #9146FF; }
+    .community-name { font-family: 'Orbitron', monospace; font-size: 0.8rem; font-weight: 700; color: var(--text); letter-spacing: 0.05em; }
+    .community-stat { font-size: 0.78rem; color: var(--muted); }
+    .community-stat span { color: var(--text); font-weight: 600; }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: 'Orbitron', monospace; font-size: 0.6rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.2rem 0.6rem; border-radius: 2px;
+      background: rgba(255,59,59,0.15); color: var(--red);
+      border: 1px solid rgba(255,59,59,0.3); width: fit-content;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: pulseDot 1.5s ease-in-out infinite; }
+    .offline-badge {
+      font-family: 'Orbitron', monospace; font-size: 0.6rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ═══════════════════════════════════════
+       NEWSLETTER / UPDATES
+    ═══════════════════════════════════════ */
+    .newsletter-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    @media (max-width: 700px) { .newsletter-wrap { grid-template-columns: 1fr; } }
+
+    .nl-perks { display: flex; flex-direction: column; gap: 1.1rem; }
+    .nl-perk { display: flex; align-items: flex-start; gap: 0.85rem; }
+    .nl-perk-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .nl-perk-title {
+      font-family: 'Orbitron', monospace; font-size: 0.75rem;
+      font-weight: 700; color: var(--text); letter-spacing: 0.05em;
+      margin-bottom: 0.2rem;
+    }
+    .nl-perk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    .nl-form-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 2rem;
+    }
+    .nl-tagline {
+      font-size: 0.82rem; color: var(--muted); margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+    .nl-form { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .nl-input {
+      flex: 1; min-width: 180px;
+      padding: 0.75rem 1rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; color: var(--text);
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .nl-input:focus { border-color: var(--cyan); }
+    .nl-input::placeholder { color: var(--muted); }
+    .nl-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.4rem;
+      background: var(--cyan); color: #07070E;
+      font-family: 'Orbitron', monospace; font-size: 0.68rem;
+      font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      border: none; border-radius: 4px; cursor: pointer;
+      transition: all 0.22s; white-space: nowrap;
+    }
+    .nl-btn:hover { background: rgba(0,229,255,0.85); box-shadow: 0 0 18px rgba(0,229,255,0.4); }
+    .nl-msg {
+      margin-top: 0.85rem;
+      font-family: 'Orbitron', monospace; font-size: 0.65rem;
+      letter-spacing: 0.15em; text-transform: uppercase; line-height: 1.6;
+      padding: 0.65rem 0.9rem; border-radius: 3px;
+    }
+    .nl-msg.success { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+    .nl-msg.error   { background: rgba(255,59,59,0.1);  color: var(--red); border: 1px solid rgba(255,59,59,0.3); }
+
+    /* ═══════════════════════════════════════
+       EASTER EGG
+    ═══════════════════════════════════════ */
+    #easterEgg {
+      position: fixed; inset: 0; z-index: 9997;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.85);
+      flex-direction: column; gap: 1rem;
+      cursor: pointer;
+    }
+    #easterEgg.show { display: flex; animation: rise 0.4s ease; }
+    #easterEgg h2 {
+      font-family: 'Orbitron', monospace; font-size: clamp(1.5rem, 5vw, 3rem);
+      font-weight: 900; color: var(--cyan);
+      text-shadow: 0 0 40px rgba(0,229,255,0.8);
+      letter-spacing: 0.1em; text-align: center;
+    }
+    #easterEgg p { font-family: 'Orbitron', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+
+    /* Skill card scroll animation */
+    .skill-card { opacity: 0; transform: translateY(12px); transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.22s, background 0.22s, box-shadow 0.22s; }
+    .skill-card.visible { opacity: 1; transform: translateY(0); }
+
+
+    /* ═══════════════════════════════════════
        LOADING SCREEN
     ═══════════════════════════════════════ */
     #loader {
@@ -1048,24 +1290,6 @@
     }
     .nav-link:hover { color: var(--cyan); border-color: var(--border); background: var(--cyan-dim); }
     .nav-right { display: flex; align-items: center; gap: 0.75rem; }
-
-    /* Dark/Light Toggle */
-    .theme-btn {
-      font-size: 0.85rem; width: 30px; height: 30px;
-      border-radius: 50%; border: 1px solid var(--border);
-      background: var(--surface); color: var(--muted);
-      cursor: pointer; display: flex; align-items: center;
-      justify-content: center; transition: all 0.2s;
-    }
-    .theme-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-
-    /* Light mode */
-    body.light {
-      --bg: #F0F2F8; --surface: #E4E8F5; --surface2: #D8DCEC;
-      --text: #111827; --muted: #5A6480; --border: rgba(0,100,200,0.15);
-      --cyan-dim: rgba(0,100,200,0.1);
-    }
-    body.light .announce-bar { background: #0066CC; }
 
     /* ═══════════════════════════════════════
        SOCIAL PLATFORM STATS
@@ -1137,14 +1361,6 @@
       font-size: 0.55rem; letter-spacing: 0.18em;
       text-transform: uppercase; color: var(--muted);
       margin-top: 0.35rem;
-    }
-
-    .platform-note {
-      padding: 0.6rem 1.25rem;
-      border-top: 1px solid var(--border);
-      font-size: 0.72rem; color: var(--muted);
-      font-family: 'Orbitron', monospace;
-      letter-spacing: 0.08em;
     }
 
     /* ═══════════════════════════════════════
@@ -1307,6 +1523,16 @@
 </head>
 <body>
 
+  <!-- Scroll progress bar -->
+  <div id="scrollBar"></div>
+  <!-- Cursor trail canvas -->
+  <canvas id="cursorCanvas"></canvas>
+  <!-- Easter egg overlay -->
+  <div id="easterEgg" onclick="this.classList.remove('show')">
+    <h2>⚡ CLAVEXIS ⚡</h2>
+    <p>You found the easter egg — click anywhere to close</p>
+  </div>
+
   <!-- ════════════════════════════════════════
        LOADING SCREEN
   ════════════════════════════════════════ -->
@@ -1351,14 +1577,15 @@
       <button class="nav-link" onclick="document.getElementById('skills').scrollIntoView({behavior:'smooth'})">Skills</button>
       <button class="nav-link" onclick="document.getElementById('socials').scrollIntoView({behavior:'smooth'})">Socials</button>
       <button class="nav-link" onclick="document.getElementById('gaming').scrollIntoView({behavior:'smooth'})">Gaming</button>
+      <button class="nav-link" onclick="document.getElementById('timeline').scrollIntoView({behavior:'smooth'})">Timeline</button>
       <button class="nav-link" onclick="document.getElementById('projects').scrollIntoView({behavior:'smooth'})">Projects</button>
-      <button class="nav-link" onclick="document.getElementById('blog').scrollIntoView({behavior:'smooth'})">Blog</button>
+      <button class="nav-link" onclick="document.getElementById('community').scrollIntoView({behavior:'smooth'})">Community</button>
+      <button class="nav-link" onclick="document.getElementById('guestbook').scrollIntoView({behavior:'smooth'})">Guestbook</button>
       <button class="nav-link" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</button>
     </div>
 
     <div class="nav-right">
-      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-      <div class="nav-status">
+<div class="nav-status">
         <div class="dot"></div>
         ONLINE
       </div>
@@ -1412,6 +1639,15 @@
   </div>
 
 
+  <!-- ════════════════════════════════════════
+       TECH MARQUEE
+  ════════════════════════════════════════ -->
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="marqueeTrack">
+      <!-- duplicated for seamless loop -->
+    </div>
+  </div>
+
   <hr class="divider">
 
   <!-- ════════════════════════════════════════
@@ -1422,7 +1658,7 @@
     <h2 class="sec-title">Social Stats</h2>
 
     <!-- GitHub Row -->
-    <div class="sec-label" style="margin-bottom:0.75rem;">// GitHub — clawtornix</div>
+    <div class="sec-label" style="margin-bottom:0.75rem;">// GitHub — Clavexis</div>
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card"><div class="stat-num" id="stat-repos">—</div><div class="stat-label">Public Repos</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-followers">—</div><div class="stat-label">Followers</div></div>
@@ -1456,9 +1692,6 @@
             <div class="p-stat-label">Videos</div>
           </div>
         </div>
-        <div class="platform-note" id="yt-note">
-          // Add YouTube API key to show live stats
-        </div>
       </div>
 
       <!-- INSTAGRAM CARD -->
@@ -1483,9 +1716,6 @@
             <div class="p-stat-num" id="ig-posts">—</div>
             <div class="p-stat-label">Posts</div>
           </div>
-        </div>
-        <div class="platform-note" id="ig-note">
-          // Update stats manually below in the JS config
         </div>
       </div>
 
@@ -2607,7 +2837,7 @@
 
       <!-- GitHub -->
       <a class="soc-btn github"
-         href="https://github.com/clawtornix"
+         href="https://github.com/Clavexis"
          target="_blank" rel="noopener noreferrer">
         <i class="fa-brands fa-github"></i>
         GitHub
@@ -2711,22 +2941,45 @@
           <span>clav</span>exis<span style="color:var(--cyan)">AI</span>
         </div>
 
-        <span class="badge badge-wip">Work in Progress</span>  <!-- EDIT: badge-active / badge-wip / badge-idea -->
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;position:relative;z-index:1;">
+          <span class="badge badge-wip">Final Refinements Underway</span>
+          <span class="badge badge-idea" style="background:rgba(0,229,255,0.1);color:var(--cyan);border-color:rgba(0,229,255,0.3);">In Dev Since 2025</span>
+        </div>
 
-        <p class="subdomain-tagline">
-          clavexisAI is a standalone AI project living on its own subdomain.
-          Click below to visit the dedicated site for the full experience.
-          <!-- EDIT: update this tagline to describe your project -->
+        <p class="subdomain-tagline" style="font-size:1.05rem;color:var(--text);font-weight:500;">
+          Your friendly AI for <em style="color:var(--cyan);font-style:normal;">everything.</em>
         </p>
 
-        <!-- EDIT: replace # with your actual subdomain, e.g. https://ai.clavexis.com -->
+        <p class="subdomain-tagline">
+          ClavexisAI is a powerful web assistant that helps you chat, research,
+          write code, automate tasks, analyse data, generate images, and more —
+          all in one place. Built from scratch with <strong style="color:var(--text);">355+ features</strong>
+          across AI, voice, vision, agents, memory, and collaboration.
+        </p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:0.45rem;justify-content:center;position:relative;z-index:1;">
+          <span class="lang-tag">💬 AI Chat</span>
+          <span class="lang-tag">🔍 Deep Research</span>
+          <span class="lang-tag">💻 Code Assistant</span>
+          <span class="lang-tag">🤖 Autonomous Agents</span>
+          <span class="lang-tag">🎙️ Voice Control</span>
+          <span class="lang-tag">👁️ Vision AI</span>
+          <span class="lang-tag">⚙️ Automation</span>
+          <span class="lang-tag">🧠 Memory</span>
+          <span class="lang-tag">🖼️ Image Gen</span>
+          <span class="lang-tag">📊 Analytics</span>
+        </div>
+
         <a class="subdomain-btn" href="#" target="_blank" rel="noopener noreferrer">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          Visit clavexisAI
+          Try ClavexisAI
         </a>
 
-        <!-- Shown below the button as a subtle URL hint -->
-        <div class="subdomain-url">ai.clavexis.com</div>  <!-- EDIT: your actual subdomain -->
+        <div class="subdomain-url">ai.clavexis.com</div>
+
+        <p style="font-family:'Orbitron',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);position:relative;z-index:1;text-align:center;">
+          Final refinements in development &nbsp;·&nbsp; More features may come
+        </p>
 
       </div>
     </div><!-- /tab-ai -->
@@ -2737,9 +2990,9 @@
     ───────────────────────────────────────── -->
     <div class="tab-panel" id="tab-other">
       <div class="coming-soon">
-        <div class="cs-icon">🚧</div>
-        <div class="cs-title">Coming Soon</div>
-        <p class="cs-sub">More projects are in the works. Check back soon — or follow on GitHub for early updates.</p>
+        <div class="cs-icon">🚀</div>
+        <div class="cs-title">60 Projects Coming Soon</div>
+        <p class="cs-sub">60 open-source projects are in development and will be dropping on GitHub soon. Follow <a href="https://github.com/Clavexis" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none;">@Clavexis</a> to get notified when they go live.</p>
       </div>
     </div><!-- /tab-other -->
 
@@ -2774,6 +3027,203 @@
         <div class="blog-title">Linux as a Daily Driver — My Setup</div>
         <div class="blog-preview">My full Linux environment: Neovim, tmux, dotfiles, and everything that makes it feel like home.</div>
       </a>
+
+    </div>
+  </section>
+
+
+  <hr class="divider">
+
+
+  <!-- ════════════════════════════════════════
+       CONTACT
+  ════════════════════════════════════════ -->
+  <hr class="divider">
+
+
+  <!-- ════════════════════════════════════════
+       TIMELINE
+  ════════════════════════════════════════ -->
+  <section id="timeline">
+    <div class="sec-label">// Journey</div>
+    <h2 class="sec-title">Achievements</h2>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2026</div>
+        <div class="tl-title">clavexis.com Goes Live</div>
+        <div class="tl-desc">Launched this portfolio. Built with pure HTML, CSS, and JS — no frameworks.</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot purple"></div>
+        <div class="tl-date purple">2025</div>
+        <div class="tl-title">clavexisAI — Development Begins</div>
+        <div class="tl-desc">Started building clavexisAI — a friendly web assistant with 355+ features. Final refinements currently underway.</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2026</div>
+        <div class="tl-title">60 Open Source Projects</div>
+        <div class="tl-desc">Building and releasing 60 open-source projects across Windows, Linux, and macOS on GitHub.</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot purple"></div>
+        <div class="tl-date purple">2025</div>
+        <div class="tl-title">Started Building with AI</div>
+        <div class="tl-desc">Began using Claude Code and AI tools to build faster and ship real projects.</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">2025</div>
+        <div class="tl-title">1500 ELO — chess.com</div>
+        <div class="tl-desc">Reached 1500 ELO on chess.com through consistent play and studying openings.</div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot purple"></div>
+        <div class="tl-date purple">2024</div>
+        <div class="tl-title">Started Coding</div>
+        <div class="tl-desc">Wrote the first line of code. Started with Python, then C++, then everything else followed.</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <hr class="divider">
+
+
+  <!-- ════════════════════════════════════════
+       TESTIMONIALS
+  ════════════════════════════════════════ -->
+  <section id="testimonials">
+    <div class="sec-label">// Kind Words</div>
+    <h2 class="sec-title">Testimonials</h2>
+
+    <!-- Pinned testimonials (edit these directly) -->
+    <div class="testimonials-grid" id="pinnedTestis">
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">Send me your real testimonials and I'll pin them here permanently.</p>
+        <div class="testi-author">Your Name</div>
+        <div class="testi-role">Role · Platform</div>
+      </div>
+    </div>
+
+    <!-- Community submitted testimonials -->
+    <div style="margin-top:2rem;">
+      <div class="col-label" style="margin-bottom:1rem;">// Submit yours</div>
+      <div class="guestbook-form" id="testiForm">
+        <input class="gb-name" id="testiName" type="text" placeholder="Your name" maxlength="32">
+        <input class="gb-name" id="testiRole" type="text" placeholder="Your role / where you know me from" maxlength="48" style="width:220px;">
+        <input class="gb-msg"  id="testiMsg"  type="text" placeholder="What do you think of my work? (min 20 chars)" maxlength="200">
+        <button class="gb-submit" onclick="submitTesti()">Submit</button>
+      </div>
+      <div id="testiError" style="font-family:'Orbitron',monospace;font-size:0.62rem;letter-spacing:0.12em;color:var(--red);margin-bottom:0.75rem;display:none;"></div>
+      <div class="testimonials-grid" id="communityTestis"></div>
+    </div>
+  </section>
+
+
+  <hr class="divider">
+
+
+  <!-- ════════════════════════════════════════
+       COMMUNITY (Discord + Twitch)
+  ════════════════════════════════════════ -->
+  <section id="community">
+    <div class="sec-label">// Join</div>
+    <h2 class="sec-title">Community</h2>
+    <div class="community-grid">
+
+      <a class="community-card discord" href="https://discord.gg/Xp5ACjnbue" target="_blank" rel="noopener">
+        <div class="community-card-head">
+          <i class="fa-brands fa-discord"></i>
+          <div>
+            <div class="community-name">Discord Server</div>
+            <div class="community-stat">Members: <span id="discord-members">—</span></div>
+          </div>
+        </div>
+        <div class="community-stat">Online: <span id="discord-online">—</span></div>
+        <div class="community-stat" style="color:var(--cyan);font-size:0.78rem;margin-top:0.25rem;">Join the server →</div>
+      </a>
+
+      <a class="community-card twitch" href="https://twitch.tv/clavexis" target="_blank" rel="noopener">
+        <div class="community-card-head">
+          <i class="fa-brands fa-twitch"></i>
+          <div>
+            <div class="community-name">Twitch</div>
+            <div class="community-stat">@clavexis</div>
+          </div>
+        </div>
+        <div id="twitch-status"><span class="offline-badge">Checking status...</span></div>
+        <div class="community-stat" style="color:#9146FF;font-size:0.78rem;margin-top:0.25rem;">Watch on Twitch →</div>
+      </a>
+
+    </div>
+  </section>
+
+
+  <hr class="divider">
+
+
+  <!-- ════════════════════════════════════════
+       NEWSLETTER / UPDATES
+  ════════════════════════════════════════ -->
+  <section id="updates">
+    <div class="sec-label">// Stay in the Loop</div>
+    <h2 class="sec-title">Get Updates</h2>
+
+    <div class="newsletter-wrap">
+
+      <!-- What you'll get -->
+      <div class="nl-perks">
+        <div class="nl-perk">
+          <span class="nl-perk-icon">🚀</span>
+          <div>
+            <div class="nl-perk-title">ClavexisAI Launch</div>
+            <div class="nl-perk-desc">Be first to know when ClavexisAI goes live.</div>
+          </div>
+        </div>
+        <div class="nl-perk">
+          <span class="nl-perk-icon">📦</span>
+          <div>
+            <div class="nl-perk-title">New Projects</div>
+            <div class="nl-perk-desc">Get notified when new GitHub projects drop.</div>
+          </div>
+        </div>
+        <div class="nl-perk">
+          <span class="nl-perk-icon">⚡</span>
+          <div>
+            <div class="nl-perk-title">Big Updates</div>
+            <div class="nl-perk-desc">Major site updates, new tools, and announcements.</div>
+          </div>
+        </div>
+        <div class="nl-perk">
+          <span class="nl-perk-icon">🎮</span>
+          <div>
+            <div class="nl-perk-title">Content & Streams</div>
+            <div class="nl-perk-desc">New Twitch streams, YouTube videos, and clips.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email form -->
+      <div class="nl-form-wrap">
+        <p class="nl-tagline">No spam. Just the good stuff. Unsubscribe anytime.</p>
+        <div class="nl-form" id="nlForm">
+          <input class="nl-input" id="nlEmail" type="email" placeholder="your@email.com" maxlength="100">
+          <button class="nl-btn" onclick="subscribeEmail()">
+            <i class="fa-solid fa-bell"></i> Notify Me
+          </button>
+        </div>
+        <div id="nlMsg" class="nl-msg" style="display:none;"></div>
+      </div>
 
     </div>
   </section>
@@ -2825,15 +3275,12 @@
        CONFIG — UPDATE THESE
     ══════════════════════════════════════ */
     const CONFIG = {
-      // Get a free key at console.cloud.google.com → YouTube Data API v3
-      YOUTUBE_API_KEY: '',           // EDIT: paste your YouTube API key here
+      YOUTUBE_API_KEY: '',
       YOUTUBE_CHANNEL_HANDLE: '@clavexis',
-
-      // Update these manually with your real Instagram stats
       INSTAGRAM: {
-        followers: '—',   // EDIT: e.g. '1.2K'
-        following: '—',   // EDIT: e.g. '350'
-        posts:     '—',   // EDIT: e.g. '24'
+        followers: '—',
+        following: '—',
+        posts:     '—',
       }
     };
 
@@ -2874,6 +3321,285 @@
     })();
 
     /* ══════════════════════════════════════
+       SCROLL PROGRESS BAR
+    ══════════════════════════════════════ */
+    window.addEventListener('scroll', () => {
+      const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      document.getElementById('scrollBar').style.width = pct + '%';
+    });
+
+    /* ══════════════════════════════════════
+       CURSOR TRAIL
+    ══════════════════════════════════════ */
+    (function() {
+      const canvas = document.getElementById('cursorCanvas');
+      const ctx = canvas.getContext('2d');
+      let W = canvas.width = window.innerWidth;
+      let H = canvas.height = window.innerHeight;
+      window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
+      const particles = [];
+      let mx = -999, my = -999;
+      window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+      function Particle(x, y) {
+        this.x = x; this.y = y;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = (Math.random() - 0.5) * 1.5;
+        this.life = 1; this.r = Math.random() * 3 + 1;
+      }
+      function loop() {
+        ctx.clearRect(0, 0, W, H);
+        if (mx > 0) particles.push(new Particle(mx, my));
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx; p.y += p.vy; p.life -= 0.035;
+          if (p.life <= 0) { particles.splice(i, 1); continue; }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0,229,255,${p.life * 0.6})`;
+          ctx.shadowBlur = 8; ctx.shadowColor = '#00E5FF';
+          ctx.fill();
+        }
+        if (particles.length > 120) particles.splice(0, particles.length - 120);
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+
+    /* ══════════════════════════════════════
+       TECH MARQUEE
+    ══════════════════════════════════════ */
+    (function() {
+      const techs = [
+        ['⚡','Python'],['⚙️','C++'],['🦀','Rust'],['🐹','Go'],['☕','Java'],
+        ['🟦','TypeScript'],['⚛️','React'],['▲','Next.js'],['🖥️','Node.js'],
+        ['🐳','Docker'],['☸️','Kubernetes'],['☁️','AWS'],['🧠','Machine Learning'],
+        ['💬','LLM APIs'],['🐧','Linux'],['📝','Neovim'],['🖥️','tmux'],
+        ['🔐','Security'],['🦜','LangChain'],['🎮','Game Dev'],['🌐','WebDev'],
+        ['🔷','Solidity'],['🎛️','Dear ImGui'],['⚡','CUDA'],['🍃','MongoDB'],
+        ['🐘','PostgreSQL'],['🟥','Redis'],['❄️','Nix/NixOS'],['🔎','GDB'],
+      ];
+      const track = document.getElementById('marqueeTrack');
+      const build = () => techs.map(([icon, name]) =>
+        `<div class="marquee-item"><span>${icon}</span>${name}</div>`).join('');
+      // Duplicate for seamless loop
+      track.innerHTML = build() + build();
+    })();
+
+    /* ══════════════════════════════════════
+       TIMELINE SCROLL ANIMATION
+    ══════════════════════════════════════ */
+    const tlObserver = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 120);
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.tl-item').forEach(el => tlObserver.observe(el));
+
+    /* ══════════════════════════════════════
+       SKILL CARD SCROLL ANIMATION
+    ══════════════════════════════════════ */
+    const skillObserver = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 30);
+          skillObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.skill-card').forEach(el => skillObserver.observe(el));
+
+    /* ══════════════════════════════════════
+       DISCORD MEMBER COUNT
+    ══════════════════════════════════════ */
+    fetch('https://discord.com/api/v9/invites/Xp5ACjnbue?with_counts=true')
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('discord-members').textContent = d.approximate_member_count?.toLocaleString() ?? '—';
+        document.getElementById('discord-online').textContent  = d.approximate_presence_count?.toLocaleString() ?? '—';
+      }).catch(() => {});
+
+    /* ══════════════════════════════════════
+       TWITCH LIVE STATUS
+    ══════════════════════════════════════ */
+    // Twitch requires OAuth — showing static link instead
+    document.getElementById('twitch-status').innerHTML =
+      '<span class="offline-badge">Visit channel to see live status</span>';
+
+    /* ══════════════════════════════════════
+       CONTENT MODERATION
+    ══════════════════════════════════════ */
+    const BANNED_WORDS = [
+      'fuck','shit','bitch','asshole','damn','crap','bastard','dick','cock',
+      'pussy','cunt','whore','slut','nigger','faggot','retard','idiot','stupid',
+      'kill','hate','spam','scam','porn','xxx','sex','nude','naked',
+    ];
+
+    function isBanned(text) {
+      const lower = text.toLowerCase().replace(/[^a-z\s]/g,'');
+      return BANNED_WORDS.some(w => lower.split(/\s+/).includes(w));
+    }
+
+    function isSpam(text) {
+      if (text.trim().length < 5) return 'Too short.';
+      if (/^(.)\1{6,}/.test(text.trim())) return 'Looks like spam.';
+      if (text === text.toUpperCase() && text.length > 8 && /[A-Z]/.test(text)) return 'No all-caps please.';
+      if ((text.match(/[!?]{3,}/g) || []).length > 0) return 'Too many punctuation marks.';
+      if (/https?:\/\//i.test(text)) return 'No links please.';
+      if (isBanned(text)) return 'Contains restricted words.';
+      return null;
+    }
+
+    /* ══════════════════════════════════════
+       GUESTBOOK
+    ══════════════════════════════════════ */
+    const GB_KEY = 'clx_guestbook';
+    const DEFAULT_ENTRIES = [
+      { name: 'clavexis', msg: 'Welcome to my site! Drop a message 👋', time: Date.now() - 86400000 }
+    ];
+
+    function updateCharCount() {
+      const len = document.getElementById('gbMsg').value.length;
+      const el = document.getElementById('charCount');
+      if (el) { el.textContent = len; el.style.color = len > 100 ? 'var(--red)' : 'var(--muted)'; }
+    }
+
+    function loadGuestbook() {
+      try { return JSON.parse(localStorage.getItem(GB_KEY) || 'null') || DEFAULT_ENTRIES; }
+      catch { return DEFAULT_ENTRIES; }
+    }
+
+    function saveGuestbook(entries) {
+      try { localStorage.setItem(GB_KEY, JSON.stringify(entries.slice(-50))); } catch {}
+    }
+
+    function renderGuestbook() {
+      const entries = loadGuestbook();
+      const container = document.getElementById('gbEntries');
+      const countEl = document.getElementById('msgCount');
+      if (countEl) countEl.textContent = entries.length;
+      if (!entries.length) {
+        container.innerHTML = '<div style="text-align:center;padding:2rem;font-family:Orbitron,monospace;font-size:0.65rem;letter-spacing:0.2em;color:var(--muted);">BE THE FIRST TO SIGN</div>';
+        return;
+      }
+      container.innerHTML = entries.slice().reverse().map(e => `
+        <div class="gb-entry">
+          <div class="gb-avatar">${Array.from(e.name)[0]?.toUpperCase() || '?'}</div>
+          <div style="flex:1;">
+            <div class="gb-entry-name">${e.name.replace(/</g,'&lt;').slice(0,24)}</div>
+            <div class="gb-entry-msg">${e.msg.replace(/</g,'&lt;').slice(0,120)}</div>
+            <div class="gb-entry-time">${new Date(e.time).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    function showGbError(msg) {
+      const el = document.getElementById('gbError');
+      if (!el) return;
+      el.textContent = msg; el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    function submitGuest() {
+      const name = document.getElementById('gbName').value.trim();
+      const msg  = document.getElementById('gbMsg').value.trim();
+      if (!name) return showGbError('Enter your name.');
+      if (name.length < 2) return showGbError('Name too short.');
+      if (isBanned(name)) return showGbError('Name contains restricted words.');
+      const spamReason = isSpam(msg);
+      if (spamReason) return showGbError(spamReason);
+      if (msg.length < 10) return showGbError('Message needs at least 10 characters.');
+      const entries = loadGuestbook();
+      // Rate limit: same name can't post twice within 1 minute
+      const recent = entries.filter(e => e.name.toLowerCase() === name.toLowerCase() && Date.now() - e.time < 60000);
+      if (recent.length) return showGbError('You just signed! Wait a moment.');
+      entries.push({ name, msg, time: Date.now() });
+      saveGuestbook(entries);
+      document.getElementById('gbName').value = '';
+      document.getElementById('gbMsg').value = '';
+      updateCharCount();
+      renderGuestbook();
+    }
+
+    renderGuestbook();
+
+    /* ══════════════════════════════════════
+       TESTIMONIALS
+    ══════════════════════════════════════ */
+    const TESTI_KEY = 'clx_testimonials';
+
+    function loadTestis() {
+      try { return JSON.parse(localStorage.getItem(TESTI_KEY) || '[]'); }
+      catch { return []; }
+    }
+
+    function saveTestis(entries) {
+      try { localStorage.setItem(TESTI_KEY, JSON.stringify(entries.slice(-30))); } catch {}
+    }
+
+    function renderTestis() {
+      const entries = loadTestis();
+      const container = document.getElementById('communityTestis');
+      if (!entries.length) {
+        container.innerHTML = '<p style="font-size:0.82rem;color:var(--muted);">No community testimonials yet — be the first!</p>';
+        return;
+      }
+      container.innerHTML = entries.slice().reverse().map(e => `
+        <div class="testi-card">
+          <div class="testi-quote">"</div>
+          <p class="testi-text">${e.msg.replace(/</g,'&lt;')}</p>
+          <div class="testi-author">${e.name.replace(/</g,'&lt;')}</div>
+          <div class="testi-role">${e.role.replace(/</g,'&lt;')}</div>
+        </div>`).join('');
+    }
+
+    function showTestiError(msg) {
+      const el = document.getElementById('testiError');
+      if (!el) return;
+      el.textContent = msg; el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    function submitTesti() {
+      const name = document.getElementById('testiName').value.trim();
+      const role = document.getElementById('testiRole').value.trim();
+      const msg  = document.getElementById('testiMsg').value.trim();
+      if (!name) return showTestiError('Enter your name.');
+      if (!role) return showTestiError('Enter your role or where you know me from.');
+      if (msg.length < 20) return showTestiError('Testimonial needs at least 20 characters.');
+      if (isSpam(msg)) return showTestiError(isSpam(msg));
+      if (isBanned(name) || isBanned(msg) || isBanned(role)) return showTestiError('Contains restricted words.');
+      const entries = loadTestis();
+      const recent = entries.filter(e => e.name.toLowerCase() === name.toLowerCase() && Date.now() - e.time < 3600000);
+      if (recent.length) return showTestiError('You already submitted a testimonial recently.');
+      entries.push({ name, role, msg, time: Date.now() });
+      saveTestis(entries);
+      document.getElementById('testiName').value = '';
+      document.getElementById('testiRole').value = '';
+      document.getElementById('testiMsg').value = '';
+      renderTestis();
+    }
+
+    renderTestis();
+
+    /* ══════════════════════════════════════
+       EASTER EGG — type "clavexis"
+    ══════════════════════════════════════ */
+    (function() {
+      const SECRET = 'clavexis';
+      let buf = '';
+      document.addEventListener('keydown', e => {
+        if (document.activeElement.tagName === 'INPUT') return;
+        buf = (buf + e.key).slice(-SECRET.length);
+        if (buf.toLowerCase() === SECRET) {
+          document.getElementById('easterEgg').classList.add('show');
+          buf = '';
+        }
+      });
+    })();
+
+    /* ══════════════════════════════════════
        TAB SWITCHER
     ══════════════════════════════════════ */
     function switchTab(id, btn) {
@@ -2883,17 +3609,7 @@
       document.getElementById('tab-' + id).classList.add('active');
     }
 
-    /* ══════════════════════════════════════
-       DARK / LIGHT MODE
-    ══════════════════════════════════════ */
-    function toggleTheme() {
-      const body = document.body;
-      const btn = document.getElementById('themeBtn');
-      body.classList.toggle('light');
-      btn.textContent = body.classList.contains('light') ? '🌑' : '🌙';
-    }
-
-    /* ══════════════════════════════════════
+/* ══════════════════════════════════════
        SKILL FILTER
     ══════════════════════════════════════ */
     function filterSkills(query) {
@@ -2914,7 +3630,7 @@
     /* ══════════════════════════════════════
        GITHUB STATS
     ══════════════════════════════════════ */
-    fetch('https://api.github.com/users/clawtornix')
+    fetch('https://api.github.com/users/Clavexis')
       .then(r => r.json())
       .then(data => {
         document.getElementById('stat-repos').textContent = data.public_repos ?? '—';
@@ -2928,12 +3644,8 @@
        YOUTUBE STATS
     ══════════════════════════════════════ */
     (async function loadYouTube() {
-      if (!CONFIG.YOUTUBE_API_KEY) {
-        document.getElementById('yt-note').textContent = '// Add your YouTube API key in CONFIG to show live stats';
-        return;
-      }
+      if (!CONFIG.YOUTUBE_API_KEY) return;
       try {
-        // First get channel ID from handle
         const searchRes = await fetch(
           `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${CONFIG.YOUTUBE_CHANNEL_HANDLE}&type=channel&key=${CONFIG.YOUTUBE_API_KEY}`
         );
@@ -2958,23 +3670,14 @@
         document.getElementById('yt-subs').textContent   = fmt(stats.subscriberCount);
         document.getElementById('yt-views').textContent  = fmt(stats.viewCount);
         document.getElementById('yt-videos').textContent = fmt(stats.videoCount);
-        document.getElementById('yt-note').textContent   = '// Live data via YouTube Data API v3';
-      } catch(e) {
-        document.getElementById('yt-note').textContent = '// Could not load — check API key';
-      }
+      } catch(e) {}
     })();
 
-    /* ══════════════════════════════════════
-       INSTAGRAM STATS (manual config)
-    ══════════════════════════════════════ */
     (function loadInstagram() {
       const ig = CONFIG.INSTAGRAM;
       document.getElementById('ig-followers').textContent = ig.followers;
       document.getElementById('ig-following').textContent = ig.following;
       document.getElementById('ig-posts').textContent     = ig.posts;
-      if (ig.followers !== '—') {
-        document.getElementById('ig-note').textContent = '// Updated manually — visit @clavexis.official';
-      }
     })();
 
     /* ══════════════════════════════════════
@@ -3022,7 +3725,7 @@
           body: JSON.stringify({
             model: 'claude-sonnet-4-6',
             max_tokens: 300,
-            system: `You are a helpful assistant on clavexis's portfolio website. clavexis is a developer who builds AI SaaS products, writes C++, Python, and works in web dev. He is a Linux main, plays Warzone on claw controller, and holds 1500 ELO in chess. His GitHub is clawtornix. His projects include clavexisAI. He uses Claude Code to build fast. Keep answers short, friendly, and relevant to his work/profile.`,
+            system: `You are a helpful assistant on clavexis's portfolio website. clavexis is a developer who builds AI SaaS products, writes C++, Python, and works in web dev. He is a Linux main, plays Warzone on claw controller, and holds 1500 ELO in chess. His GitHub is Clavexis. His projects include clavexisAI. He uses Claude Code to build fast. Keep answers short, friendly, and relevant to his work/profile.`,
             messages: [{ role: 'user', content: text }]
           })
         });
