@@ -286,14 +286,56 @@
     }
 
     .hero-bio {
-      max-width: 500px;
-      margin-top: 1.75rem;
-      color: var(--muted);
-      font-size: 0.93rem;
-      line-height: 1.75;
+      max-width: 660px;
+      margin-top: 2rem;
       opacity: 0;
       animation: rise 0.8s ease forwards 1.1s;
     }
+
+    .bio-tagline {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(0.75rem, 1.8vw, 1rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+
+    .bio-tagline .hi { color: var(--cyan); }
+
+    .bio-body {
+      font-size: clamp(0.92rem, 1.6vw, 1.05rem);
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 0.85rem;
+    }
+
+    .bio-body strong { color: var(--text); font-weight: 600; }
+
+    .bio-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+      justify-content: center;
+    }
+
+    .bio-pill {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.85rem;
+      border-radius: 100px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .bio-pill.c { border-color: rgba(0,229,255,0.35); color: var(--cyan); }
+    .bio-pill.r { border-color: rgba(255,59,59,0.35); color: var(--red); }
+    .bio-pill.g { border-color: rgba(34,197,94,0.35); color: var(--green); }
 
     @keyframes rise {
       from { opacity: 0; transform: translateY(18px); }
@@ -1026,6 +1068,86 @@
     body.light .announce-bar { background: #0066CC; }
 
     /* ═══════════════════════════════════════
+       SOCIAL PLATFORM STATS
+    ═══════════════════════════════════════ */
+    .social-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    .platform-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: all 0.25s;
+    }
+
+    .platform-card:hover { transform: translateY(-4px); }
+
+    .platform-card.yt  { border-color: rgba(255,0,0,0.2); }
+    .platform-card.yt:hover  { border-color: rgba(255,0,0,0.5); box-shadow: 0 0 24px rgba(255,0,0,0.18); }
+    .platform-card.ig  { border-color: rgba(228,64,95,0.2); }
+    .platform-card.ig:hover  { border-color: rgba(228,64,95,0.5); box-shadow: 0 0 24px rgba(228,64,95,0.18); }
+
+    .platform-head {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .platform-head i { font-size: 1.4rem; }
+    .platform-card.yt .platform-head i { color: #FF0000; }
+    .platform-card.ig .platform-head i { color: #E4405F; }
+
+    .platform-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem; font-weight: 700;
+      color: var(--text); letter-spacing: 0.05em;
+    }
+
+    .platform-handle {
+      font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem;
+    }
+
+    .platform-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+
+    .p-stat {
+      padding: 1.1rem 0.75rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .p-stat:last-child { border-right: none; }
+
+    .p-stat-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem; font-weight: 900;
+      color: var(--text); line-height: 1;
+    }
+
+    .p-stat-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .platform-note {
+      padding: 0.6rem 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem; color: var(--muted);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.08em;
+    }
+
+    /* ═══════════════════════════════════════
        GITHUB STATS
     ═══════════════════════════════════════ */
     .stats-grid {
@@ -1263,31 +1385,110 @@
       <span class="role wz">⚡ Warzone</span>
     </div>
 
-    <p class="hero-bio">
-      Hey, I'm clavexis — a developer, builder, and gamer. I build AI SaaS
-      products, write C++, Python, and whatever the problem calls for. I use AI
-      as a tool to move fast and figure out anything I don't know yet. Nothing
-      has stopped the build. On top of all of this, I'm a student — balancing
-      school, homework, and everything that comes with it — and I still always
-      maintain my ranks in Warzone and hold 1500 ELO in chess. If I pick up
-      something new, it goes on the list.
-    </p>
+    <div class="hero-bio">
+      <div class="bio-tagline">
+        <span class="hi">Hey</span> — I'm clavexis.<br>
+        Just someone who loves building things.
+      </div>
+
+      <p class="bio-body">
+        I work with AI, C++, Python, and web development. I don't know
+        everything — but I pick things up fast and figure it out as I go.
+        Still learning, still shipping, still growing.
+      </p>
+
+      <p class="bio-body">
+        Also a student trying to balance school and everything that comes
+        with it. Still always finding time to build.
+      </p>
+
+      <div class="bio-flex">
+        <span class="bio-pill c">AI · C++ · Python</span>
+        <span class="bio-pill c">Web Dev</span>
+        <span class="bio-pill g">🐧 Linux Main</span>
+        <span class="bio-pill">🎓 Student</span>
+      </div>
+    </div>
   </div>
 
 
   <hr class="divider">
 
   <!-- ════════════════════════════════════════
-       GITHUB STATS
+       SOCIAL STATS
   ════════════════════════════════════════ -->
   <section id="github-stats">
-    <div class="sec-label">// clawtornix on GitHub</div>
-    <h2 class="sec-title">GitHub Stats</h2>
+    <div class="sec-label">// Live Stats</div>
+    <h2 class="sec-title">Social Stats</h2>
+
+    <!-- GitHub Row -->
+    <div class="sec-label" style="margin-bottom:0.75rem;">// GitHub — clawtornix</div>
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card"><div class="stat-num" id="stat-repos">—</div><div class="stat-label">Public Repos</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-followers">—</div><div class="stat-label">Followers</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-following">—</div><div class="stat-label">Following</div></div>
-      <div class="stat-card"><div class="stat-num" id="stat-gists">—</div><div class="stat-label">Gists</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-gists">—</div><div class="stat-label">Public Gists</div></div>
+    </div>
+
+    <!-- YouTube + Instagram Row -->
+    <div class="social-stats-grid">
+
+      <!-- YOUTUBE CARD -->
+      <div class="platform-card yt">
+        <div class="platform-head">
+          <i class="fa-brands fa-youtube"></i>
+          <div>
+            <div class="platform-name">YouTube</div>
+            <div class="platform-handle">@clavexis</div>
+          </div>
+        </div>
+        <div class="platform-stats">
+          <div class="p-stat">
+            <div class="p-stat-num" id="yt-subs">—</div>
+            <div class="p-stat-label">Subscribers</div>
+          </div>
+          <div class="p-stat">
+            <div class="p-stat-num" id="yt-views">—</div>
+            <div class="p-stat-label">Total Views</div>
+          </div>
+          <div class="p-stat">
+            <div class="p-stat-num" id="yt-videos">—</div>
+            <div class="p-stat-label">Videos</div>
+          </div>
+        </div>
+        <div class="platform-note" id="yt-note">
+          // Add YouTube API key to show live stats
+        </div>
+      </div>
+
+      <!-- INSTAGRAM CARD -->
+      <div class="platform-card ig">
+        <div class="platform-head">
+          <i class="fa-brands fa-instagram"></i>
+          <div>
+            <div class="platform-name">Instagram</div>
+            <div class="platform-handle">@clavexis.official</div>
+          </div>
+        </div>
+        <div class="platform-stats">
+          <div class="p-stat">
+            <div class="p-stat-num" id="ig-followers">—</div>
+            <div class="p-stat-label">Followers</div>
+          </div>
+          <div class="p-stat">
+            <div class="p-stat-num" id="ig-following">—</div>
+            <div class="p-stat-label">Following</div>
+          </div>
+          <div class="p-stat">
+            <div class="p-stat-num" id="ig-posts">—</div>
+            <div class="p-stat-label">Posts</div>
+          </div>
+        </div>
+        <div class="platform-note" id="ig-note">
+          // Update stats manually below in the JS config
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -2621,6 +2822,22 @@
   ════════════════════════════════════════ -->
   <script>
     /* ══════════════════════════════════════
+       CONFIG — UPDATE THESE
+    ══════════════════════════════════════ */
+    const CONFIG = {
+      // Get a free key at console.cloud.google.com → YouTube Data API v3
+      YOUTUBE_API_KEY: '',           // EDIT: paste your YouTube API key here
+      YOUTUBE_CHANNEL_HANDLE: '@clavexis',
+
+      // Update these manually with your real Instagram stats
+      INSTAGRAM: {
+        followers: '—',   // EDIT: e.g. '1.2K'
+        following: '—',   // EDIT: e.g. '350'
+        posts:     '—',   // EDIT: e.g. '24'
+      }
+    };
+
+    /* ══════════════════════════════════════
        LOADING SCREEN
     ══════════════════════════════════════ */
     (function() {
@@ -2706,6 +2923,59 @@
         document.getElementById('stat-gists').textContent = data.public_gists ?? '—';
       })
       .catch(() => {});
+
+    /* ══════════════════════════════════════
+       YOUTUBE STATS
+    ══════════════════════════════════════ */
+    (async function loadYouTube() {
+      if (!CONFIG.YOUTUBE_API_KEY) {
+        document.getElementById('yt-note').textContent = '// Add your YouTube API key in CONFIG to show live stats';
+        return;
+      }
+      try {
+        // First get channel ID from handle
+        const searchRes = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${CONFIG.YOUTUBE_CHANNEL_HANDLE}&type=channel&key=${CONFIG.YOUTUBE_API_KEY}`
+        );
+        const searchData = await searchRes.json();
+        const channelId = searchData.items?.[0]?.id?.channelId;
+        if (!channelId) throw new Error('Channel not found');
+
+        const statsRes = await fetch(
+          `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${CONFIG.YOUTUBE_API_KEY}`
+        );
+        const statsData = await statsRes.json();
+        const stats = statsData.items?.[0]?.statistics;
+        if (!stats) throw new Error('No stats');
+
+        function fmt(n) {
+          const num = parseInt(n);
+          if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
+          if (num >= 1000) return (num/1000).toFixed(1) + 'K';
+          return num.toLocaleString();
+        }
+
+        document.getElementById('yt-subs').textContent   = fmt(stats.subscriberCount);
+        document.getElementById('yt-views').textContent  = fmt(stats.viewCount);
+        document.getElementById('yt-videos').textContent = fmt(stats.videoCount);
+        document.getElementById('yt-note').textContent   = '// Live data via YouTube Data API v3';
+      } catch(e) {
+        document.getElementById('yt-note').textContent = '// Could not load — check API key';
+      }
+    })();
+
+    /* ══════════════════════════════════════
+       INSTAGRAM STATS (manual config)
+    ══════════════════════════════════════ */
+    (function loadInstagram() {
+      const ig = CONFIG.INSTAGRAM;
+      document.getElementById('ig-followers').textContent = ig.followers;
+      document.getElementById('ig-following').textContent = ig.following;
+      document.getElementById('ig-posts').textContent     = ig.posts;
+      if (ig.followers !== '—') {
+        document.getElementById('ig-note').textContent = '// Updated manually — visit @clavexis.official';
+      }
+    })();
 
     /* ══════════════════════════════════════
        VISITOR COUNTER
