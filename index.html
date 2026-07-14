@@ -221,8 +221,6 @@
     .gaming-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1rem; }
     .gaming-card { background:var(--surface); border:1px solid rgba(255,59,59,0.15); border-radius:6px; padding:1.5rem; transition:all 0.25s; }
     .gaming-card:hover { border-color:rgba(255,59,59,0.4); box-shadow:0 0 24px rgba(255,59,59,0.15); transform:translateY(-3px); }
-    .gaming-card.chess { border-color:rgba(0,229,255,0.15); }
-    .gaming-card.chess:hover { border-color:rgba(0,229,255,0.4); box-shadow:0 0 24px rgba(0,229,255,0.15); }
     .gaming-card-head { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
     .gaming-icon { font-size:2rem; }
     .gaming-name { font-family:'Orbitron',monospace; font-size:0.9rem; font-weight:700; color:var(--text); letter-spacing:0.05em; }
@@ -739,11 +737,6 @@
         <p class="gaming-desc">Plays claw grip on controller. Competing, streaming on Twitch, and grinding ranked in Warzone.</p>
         <div class="proof-slot"><i class="fa-solid fa-circle-plus"></i>Proof coming soon — clips &amp; stats</div>
       </div>
-      <div class="gaming-card chess">
-        <div class="gaming-card-head"><div class="gaming-icon">♟️</div><div><div class="gaming-name">Chess</div><div class="gaming-sub">chess.com · 1500 ELO</div></div></div>
-        <p class="gaming-desc">1500 ELO rated player on chess.com. Calculated moves, opening theory, and the occasional blunder.</p>
-        <a class="proof-slot proof-link" href="https://chess.com/member/clavexis" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i>View chess.com profile</a>
-      </div>
     </div>
   </section>
   <hr class="divider">
@@ -847,7 +840,6 @@
       <div class="tl-item"><div class="tl-dot purple"></div><div class="tl-date purple">2025</div><div class="tl-title">clavexisAI — Development Begins</div><div class="tl-desc">Started building clavexisAI — a friendly web assistant with 355+ features. Final refinements currently underway.</div></div>
       <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2026</div><div class="tl-title">60 Open Source Projects</div><div class="tl-desc">Building and releasing 60 open-source projects across Windows, Linux, and macOS on GitHub.</div></div>
       <div class="tl-item"><div class="tl-dot purple"></div><div class="tl-date purple">2025</div><div class="tl-title">Started Building with AI</div><div class="tl-desc">Began using Claude Code and AI tools to build faster and ship real projects.</div></div>
-      <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2025</div><div class="tl-title">1500 ELO — chess.com</div><div class="tl-desc">Reached 1500 ELO on chess.com through consistent play and studying openings.</div></div>
       <div class="tl-item"><div class="tl-dot purple"></div><div class="tl-date purple">2024</div><div class="tl-title">Started Coding</div><div class="tl-desc">Wrote the first line of code. Started with Python, then C++, then everything else followed.</div></div>
     </div>
   </section>
@@ -993,7 +985,6 @@
         '> MOUNTING LINUX KERNEL.........OK',
         '> SYNCING GITHUB REPOS..........OK',
         '> DEPLOYING WARZONE CONFIG......OK',
-        '> STARTING CHESS ENGINE.........OK',
         '> SYSTEM READY',
       ];
       const container = document.getElementById('loader-lines');
