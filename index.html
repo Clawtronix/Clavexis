@@ -365,6 +365,8 @@
     .nl-msg { margin-top:0.85rem; font-family:'Orbitron',monospace; font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; line-height:1.6; padding:0.65rem 0.9rem; border-radius:3px; }
     .nl-msg.success { background:rgba(34,197,94,0.1); color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
     .nl-msg.error { background:rgba(255,59,59,0.1); color:var(--red); border:1px solid rgba(255,59,59,0.3); }
+    .nl-ea { display:flex; align-items:center; gap:0.55rem; margin-top:0.9rem; font-size:0.82rem; color:var(--muted); line-height:1.5; cursor:pointer; }
+    .nl-ea input { width:1rem; height:1rem; flex-shrink:0; accent-color:var(--cyan); cursor:pointer; }
 
     /* ── BLOG ── */
     .blog-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
@@ -891,7 +893,7 @@
     <h2 class="sec-title">Get Updates</h2>
     <div class="newsletter-wrap">
       <div class="nl-perks">
-        <div class="nl-perk"><span class="nl-perk-icon">🚀</span><div><div class="nl-perk-title">ClavexisAI Launch</div><div class="nl-perk-desc">Be first to know when ClavexisAI goes live.</div></div></div>
+        <div class="nl-perk"><span class="nl-perk-icon">🚀</span><div><div class="nl-perk-title">ClavexisAI Early Access</div><div class="nl-perk-desc">Join the list: a confirmation email now, the download link on launch day.</div></div></div>
         <div class="nl-perk"><span class="nl-perk-icon">📦</span><div><div class="nl-perk-title">New Projects</div><div class="nl-perk-desc">Get notified when new GitHub projects drop.</div></div></div>
         <div class="nl-perk"><span class="nl-perk-icon">⚡</span><div><div class="nl-perk-title">Big Updates</div><div class="nl-perk-desc">Major site updates, new tools, and announcements.</div></div></div>
         <div class="nl-perk"><span class="nl-perk-icon">🎮</span><div><div class="nl-perk-title">Content &amp; Streams</div><div class="nl-perk-desc">New Twitch streams, YouTube videos, and clips.</div></div></div>
@@ -902,6 +904,7 @@
           <input class="nl-input" id="nlEmail" type="email" placeholder="your@email.com" maxlength="100">
           <button class="nl-btn" onclick="subscribeEmail()"><i class="fa-solid fa-bell"></i> Notify Me</button>
         </div>
+        <label class="nl-ea"><input type="checkbox" id="nlEarly" checked> Add me to the ClavexisAI early access list</label>
         <div id="nlMsg" class="nl-msg" style="display:none;"></div>
       </div>
     </div>
@@ -1391,18 +1394,46 @@
        the chat — a static page can collect emails but needs a mailing service
        like Buttondown / Mailchimp to send out to the whole list.)
     ══════════════════════════════ */
+    /* ClavexisAI early access: the address joins the same list as the form on ai.clavexis.com, and its
+       server emails a confirmation straight away. While that server isn't running yet, Formsubmit's
+       _autoresponse sends the confirmation instead, so every new early access sign-up gets one. */
+    const CLAVEXIS_LIST_URL = 'https://api.clavexis.com/api/notify';
+    const EARLY_ACCESS_REPLY = 'Thanks for joining the ClavexisAI early access list! I\'ll email you once, on launch day, ' +
+      'with the download link. Nothing else in between.\n\nSee what\'s coming: https://ai.clavexis.com\n\n' +
+      'Didn\'t sign up, or changed your mind? Reply "remove" and I\'ll take you off the list.\n\n— Clavexis';
+    async function joinClavexisList(email) {
+      try {
+        // text/plain keeps it a simple request (no CORS preflight); the server reads the JSON body
+        const r = await fetch(CLAVEXIS_LIST_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ email, platform: 'early-access' }), signal: AbortSignal.timeout(6000) });
+        const d = await r.json();
+        return r.ok && d.ok ? d : null;
+      } catch (e) { return null; }
+    }
+
     async function subscribeEmail() {
       const email = document.getElementById('nlEmail').value.trim();
+      const early = document.getElementById('nlEarly').checked;
       const msg = document.getElementById('nlMsg');
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         msg.textContent = 'Enter a valid email address.'; msg.className = 'nl-msg error'; msg.style.display = 'block'; return;
       }
-      try { const subs = JSON.parse(localStorage.getItem('clx_subs') || '[]'); subs.push({ email, time: Date.now() }); localStorage.setItem('clx_subs', JSON.stringify(subs)); } catch {}
+      try { const subs = JSON.parse(localStorage.getItem('clx_subs') || '[]'); subs.push({ email, early, time: Date.now() }); localStorage.setItem('clx_subs', JSON.stringify(subs)); } catch {}
       document.getElementById('nlEmail').value = '';
-      msg.textContent = '\u2713 You\'re on the list! I\'ll email you when things drop.'; msg.className = 'nl-msg success'; msg.style.display = 'block';
-      setTimeout(() => { msg.style.display = 'none'; }, 5000);
-      // Send the new subscriber's email to contact@clavexis.com automatically
-      emailToOwner('New Subscriber — clavexis.com', { subscriber_email: email, time: new Date().toLocaleString() });
+      msg.textContent = early ? '✓ You\'re on the ClavexisAI early access list! Check your inbox for a confirmation email.'
+                              : '✓ You\'re on the list! I\'ll email you when things drop.';
+      msg.className = 'nl-msg success'; msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, 7000);
+      // Send the new subscriber's email to contact@clavexis.com automatically. Early access sign-ups also
+      // get a confirmation from Formsubmit, unless the ClavexisAI server already sent one.
+      const list = early ? await joinClavexisList(email) : null;
+      const fields = { subscriber_email: email, time: new Date().toLocaleString(),
+                       clavexisai_early_access: !early ? 'no' : list ? 'yes, added to the ClavexisAI list' : 'yes (ClavexisAI server not reachable yet)' };
+      if (early && !(list && (list.confirmation || list.new === false))) {
+        fields.email = email;                  // Formsubmit sends its _autoresponse to the field named "email"
+        fields._autoresponse = EARLY_ACCESS_REPLY;
+      }
+      emailToOwner(early ? 'New early access sign-up — clavexis.com' : 'New Subscriber — clavexis.com', fields);
     }
 
     /* ══════════════════════════════
