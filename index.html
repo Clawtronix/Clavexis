@@ -173,6 +173,13 @@
     .skill-card:hover, .skill-card.visible:hover { transform:translateY(-4px); border-color:var(--line-2); background:var(--surface-2); box-shadow:var(--lift); }
     .skill-card:hover::before { transform:scaleX(1); }
     .skill-card.hidden { display:none; }
+    /* Long lists show their first items; "Show all" opens the rest (search always shows every match) */
+    .collapsed:not(.searching) > .extra { display:none; }
+    .more-wrap { display:flex; justify-content:center; }
+    .skills-grid.searching + .more-wrap { display:none; }
+    .more-btn { display:inline-flex; align-items:center; gap:.45rem; margin-top:1.1rem; padding:.55rem 1.05rem; border-radius:10px; border:1px solid var(--line-2); background:transparent; color:var(--fg); font:600 .9rem var(--body); cursor:pointer; transition:border-color .2s,background .2s; }
+    .more-btn:hover { border-color:var(--brand); background:var(--brand-soft); }
+    .lang-grid .more-btn { margin-top:0; padding:.22rem .7rem; border-radius:99px; border-color:var(--brand-line); color:var(--brand); font:500 .74rem var(--mono); }
     .skill-card.gaming::before { background:var(--red); }
     .skill-card.gaming:hover { border-color:var(--red); }
     .skill-icon { font-size:1.6rem; margin-bottom:.8rem; }
@@ -446,6 +453,10 @@
       .nav-link { font-size:.84rem; padding:.4rem .45rem; }
     }
 
+    @media(min-width:769px) and (max-width:1019px){
+      .skills-grid.collapsed:not(.searching) > .skill-card:nth-child(n+9) { display:none; }
+    }
+
     /* Phones — collapse nav into a tap-to-open dropdown */
     @media(max-width:768px){
       nav { flex-wrap:wrap; row-gap:0; padding:.6rem 1rem; }
@@ -466,6 +477,7 @@
       .hero-name { font-size:clamp(2.8rem,16vw,5rem); }
       .split-cols { gap:1rem; }
       .skills-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .skills-grid.collapsed:not(.searching) > .skill-card:nth-child(n+7) { display:none; }
       .gaming-grid, .community-grid, .blog-grid, .testimonials-grid,
       .social-stats-grid, .repo-grid, .project-grid { grid-template-columns:1fr; }
       .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -485,6 +497,9 @@
     @media(max-width:430px){
       .announce-bar { font-size:.72rem; }
       .skills-grid, .stats-grid { grid-template-columns:1fr; }
+      .skills-grid.collapsed:not(.searching) > .skill-card:nth-child(n+5) { display:none; }
+      .skill-card { padding:1.05rem 1.1rem; }
+      .skill-icon { font-size:1.35rem; margin-bottom:.45rem; }
       .hero-name { font-size:clamp(2.4rem,15vw,4rem); }
       .sec-title { font-size:1.6rem; }
       .tabs { gap:.35rem; }
@@ -1151,6 +1166,37 @@
     document.querySelectorAll('.skill-card').forEach(el => skillObserver.observe(el));
 
     /* ══════════════════════════════
+       SHORTER LISTS
+       Long lists show their first items; a button opens the rest.
+    ══════════════════════════════ */
+    function shortenList(list, keep, moreText, inside) {
+      const items = [...list.children];
+      if (items.length <= keep) return;
+      items.slice(keep).forEach(el => el.classList.add('extra'));
+      list.classList.add('collapsed');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'more-btn';
+      btn.textContent = moreText;
+      btn.setAttribute('aria-expanded', 'false');
+      btn.addEventListener('click', () => {
+        const open = !list.classList.toggle('collapsed');
+        btn.textContent = open ? 'Show fewer' : moreText;
+        btn.setAttribute('aria-expanded', String(open));
+        if (!open) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      if (inside) { list.appendChild(btn); return; }
+      const wrap = document.createElement('div');
+      wrap.className = 'more-wrap';
+      wrap.appendChild(btn);
+      list.after(wrap);
+    }
+    const langGrid = document.querySelector('.lang-grid');
+    shortenList(langGrid, 24, '+' + (langGrid.children.length - 24) + ' more', true);
+    shortenList(document.querySelector('.abilities-list'), 5, 'Show all 10 abilities');
+    shortenList(document.querySelector('.skills-grid'), 10, 'Show all ' + document.querySelectorAll('.skill-card').length + ' skills');
+
+    /* ══════════════════════════════
        SKILL FILTER
     ══════════════════════════════ */
     function filterSkills(query) {
@@ -1166,6 +1212,7 @@
         if (match) visible++;
       });
       noRes.style.display = visible === 0 ? 'block' : 'none';
+      document.querySelector('.skills-grid').classList.toggle('searching', !!q);
     }
 
     /* ══════════════════════════════
