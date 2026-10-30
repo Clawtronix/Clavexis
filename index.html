@@ -28,6 +28,9 @@
   <script>
     /* Light or dark: follows the system, or the choice saved by the theme button (same as ai.clavexis.com) */
     try { var savedTheme = localStorage.getItem('cx-theme'); if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme); } catch (e) {}
+    /* Entrance animations wait for the loader ("ready"); without scripts nothing is hidden */
+    document.documentElement.classList.add('cx-anim');
+    setTimeout(function () { document.documentElement.classList.add('ready'); }, 5000);
   </script>
   <style>
     /* Colours, fonts and shapes match ai.clavexis.com (ClavexisAI): dark by default, light when the system or the theme button asks */
@@ -120,9 +123,9 @@
     @keyframes float { 0% { transform:translate(0,0) scale(1); } 50% { transform:translate(7%,9%) scale(1.12); } 100% { transform:translate(-6%,-5%) scale(.94); } }
     @media(max-width:700px){ .blob { filter:blur(50px); width:80vw; height:80vw; } }
     .grid-fx { position:absolute; inset:0; background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px); background-size:56px 56px; -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 35%,#000 25%,transparent 75%); mask-image:radial-gradient(ellipse 70% 60% at 50% 35%,#000 25%,transparent 75%); opacity:.6; }
-    .eyebrow { font:500 .74rem var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--brand); margin-bottom:1.5rem; opacity:0; animation:rise .7s var(--ease) forwards .3s; }
-    .hero-name { font-family:var(--display); font-size:clamp(3.6rem,12vw,9rem); font-weight:800; line-height:1; letter-spacing:-.045em; color:var(--fg); cursor:default; user-select:none; opacity:0; animation:rise .9s var(--ease) forwards .5s; }
-    .roles { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; margin-top:2rem; opacity:0; animation:rise .8s var(--ease) forwards .85s; }
+    .eyebrow { font:500 .74rem var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--brand); margin-bottom:1.5rem; }
+    .hero-name { font-family:var(--display); font-size:clamp(3.6rem,12vw,9rem); font-weight:800; line-height:1; letter-spacing:-.045em; color:var(--fg); cursor:default; user-select:none; }
+    .roles { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; margin-top:2rem; }
     .role { font:500 .76rem var(--mono); padding:.3rem .8rem; border:1px solid var(--line-2); border-radius:99px; color:var(--muted); background:var(--surface); transition:color .2s,border-color .2s,background .2s; }
     .role:hover { color:var(--fg); border-color:var(--brand); background:var(--brand-soft); }
     .role.linux { color:var(--ok); border-color:var(--ok); border-color:color-mix(in srgb,var(--ok) 40%,transparent); }
@@ -132,7 +135,7 @@
     .age-badge { display:inline-flex; align-items:center; gap:.6rem; margin-top:1.5rem; padding:.4rem 1rem; border:1px solid var(--line-2); border-radius:99px; background:var(--surface); opacity:0; animation:rise .8s var(--ease) forwards 1.3s; }
     .age-num { font:800 1.1rem var(--display); color:var(--violet); }
     .age-text { font:500 .72rem var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
-    .hero-bio { max-width:660px; margin-top:2rem; opacity:0; animation:rise .8s var(--ease) forwards 1.1s; }
+    .hero-bio { max-width:660px; margin-top:2rem; }
     .bio-tagline { font:700 clamp(1.15rem,2.4vw,1.5rem) var(--display); letter-spacing:-.015em; color:var(--fg); margin-bottom:1rem; line-height:1.3; }
     .bio-tagline .hi { color:var(--brand); }
     .bio-body { font-size:clamp(.98rem,1.6vw,1.1rem); color:var(--muted); line-height:1.75; margin-bottom:.85rem; }
@@ -281,8 +284,8 @@
     .visitor-count span { color:var(--brand); }
 
     /* ── SCROLL BAR / CANVAS ── */
-    #scrollBar { position:fixed; top:0; left:0; z-index:9999; height:2px; width:0%; background:var(--grad); transition:width .05s linear; }
-    #cursorCanvas { position:fixed; inset:0; pointer-events:none; z-index:9998; }
+    #scrollBar { position:fixed; top:0; left:0; z-index:9999; height:2px; width:100%; background:var(--grad); transform:scaleX(0); transform-origin:0 50%; }
+    #cursorCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9998; }
 
     /* ── MARQUEE ── */
     .marquee-wrap { overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:1.2rem 0; position:relative; -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); }
@@ -506,10 +509,95 @@
       .tab-btn { padding:.5rem .8rem; font-size:.85rem; }
     }
 
-    /* Respect users who prefer reduced motion */
-    @media(prefers-reduced-motion:reduce){
-      *, *::before, *::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
-      #cursorCanvas { display:none; }
+    /* ═══════════════════════════════
+       MOTION
+       The same animations on every device. The ones that need a mouse (cursor trail, card light, tilt,
+       magnetic buttons, hero grid light) only run where the main pointer can hover: PCs.
+       Motion stays on when the system asks for less: Windows' "Animation effects" switch used to turn
+       every animation off on PCs.
+    ═══════════════════════════════ */
+    section { scroll-margin-top:96px; }
+    @keyframes rvIn { from { opacity:0; translate:0 26px; } to { opacity:1; translate:0 0; } }
+    @keyframes popIn { from { opacity:0; transform:translateY(10px) scale(.92); } to { opacity:1; transform:none; } }
+    @keyframes heroIn { from { opacity:0; letter-spacing:.14em; filter:blur(16px); transform:translateY(18px); } to { opacity:1; letter-spacing:-.045em; filter:blur(0); transform:none; } }
+    @keyframes wordUp { from { transform:translateY(110%) rotate(5deg); } to { transform:none; } }
+    @keyframes ping { 0% { transform:scale(.5); opacity:.8; } 80%, 100% { transform:scale(1.7); opacity:0; } }
+    @keyframes cue { 0% { transform:translateY(0); opacity:0; } 25% { opacity:1; } 75%, 100% { transform:translateY(14px); opacity:0; } }
+    @keyframes shine { from { transform:skewX(-20deg) translateX(0); } to { transform:skewX(-20deg) translateX(480%); } }
+    @keyframes shineLoop { 0% { transform:skewX(-20deg) translateX(0); } 25%, 100% { transform:skewX(-20deg) translateX(480%); } }
+    @keyframes spinIn { from { transform:rotate(-120deg) scale(.5); opacity:0; } to { transform:none; opacity:1; } }
+
+    /* Hero: plays as the loader lifts */
+    .cx-anim .eyebrow, .cx-anim .hero-name, .cx-anim .role, .cx-anim .hero-bio, .cx-anim .bio-pill { opacity:0; }
+    .ready .eyebrow { animation:rise .7s var(--ease) both; }
+    .ready .hero-name { animation:heroIn 1.25s var(--ease) both .1s; }
+    .ready .role { animation:popIn .55s var(--ease) both; animation-delay:calc(.6s + var(--i,0) * 70ms); }
+    .ready .hero-bio { animation:rise .9s var(--ease) both .85s; }
+    .ready .bio-pill { animation:popIn .5s var(--ease) both; animation-delay:calc(1.15s + var(--i,0) * 70ms); }
+    .blob { translate:calc(var(--px,0) * 36px) calc(var(--py,0) * 30px); transition:translate 1.4s var(--ease); }
+    .b2 { translate:calc(var(--px,0) * -48px) calc(var(--py,0) * -34px); }
+    .b3 { translate:calc(var(--px,0) * 22px) calc(var(--py,0) * -26px); }
+    .grid-glow { opacity:0; transition:opacity .5s; background-image:linear-gradient(var(--brand-line) 1px,transparent 1px),linear-gradient(90deg,var(--brand-line) 1px,transparent 1px); -webkit-mask-image:radial-gradient(circle 260px at var(--gx,50%) var(--gy,50%),#000,transparent 72%); mask-image:radial-gradient(circle 260px at var(--gx,50%) var(--gy,50%),#000,transparent 72%); }
+    .hero-bg.lit .grid-glow { opacity:1; }
+    .hero > .scroll-cue { position:absolute; left:50%; bottom:1.6rem; z-index:1; width:26px; height:42px; margin-left:-13px; padding:0; border:1.5px solid var(--line-2); border-radius:14px; background:none; cursor:pointer; opacity:0; transition:opacity .5s, border-color .2s; }
+    .hero > .scroll-cue::before { content:''; position:absolute; left:50%; top:8px; width:4px; height:8px; margin-left:-2px; border-radius:2px; background:var(--brand); animation:cue 1.9s var(--ease) infinite; }
+    .hero > .scroll-cue:hover { border-color:var(--brand); }
+    .ready .hero > .scroll-cue { opacity:.9; transition-delay:1.6s, 0s; }
+    .ready.cx-scrolled .hero > .scroll-cue { opacity:0; pointer-events:none; transition-delay:0s; }
+
+    /* Nav: shadow once scrolled, a pill slides to the section you're in */
+    nav { transition:box-shadow .3s; }
+    nav.scrolled { box-shadow:0 12px 32px -20px rgba(0,0,0,.55); }
+    .nav-links { position:relative; }
+    .nav-link { position:relative; z-index:1; }
+    .nav-link.active { color:var(--fg); }
+    .nav-ink { position:absolute; top:0; left:0; z-index:0; border-radius:9px; background:var(--brand-soft); box-shadow:inset 0 0 0 1px var(--brand-line); opacity:0; pointer-events:none; transition:transform .5s var(--ease), width .5s var(--ease), height .5s var(--ease), opacity .3s; }
+
+    /* Sections: blocks slide in, headings rise word by word, lines draw themselves */
+    .rv:not(.in) { opacity:0; }
+    .rv.in { animation:rvIn .8s var(--ease) both; animation-delay:calc(var(--d,0) * 75ms); }
+    .tw { display:inline-block; overflow:hidden; vertical-align:top; padding-bottom:.14em; margin-bottom:-.14em; }
+    .tw > span { display:inline-block; transform-origin:0 100%; }
+    .split-words:not(.in) .tw > span { transform:translateY(110%); }
+    .split-words.in .tw > span { animation:wordUp .9s var(--ease) both; animation-delay:calc(var(--w,0) * 75ms); }
+    .cx-anim hr.divider { transform:scaleX(0); transition:transform 1.3s var(--ease); }
+    .cx-anim hr.divider.in { transform:none; }
+    .cx-anim .split-col:not(.in) .lang-tag, .cx-anim .split-col:not(.in) .ability-item { opacity:0; }
+    .split-col.in .lang-tag { animation:popIn .45s var(--ease) both; animation-delay:calc(.2s + var(--i,0) * 20ms); }
+    .split-col.in .ability-item { animation:rvIn .6s var(--ease) both; animation-delay:calc(.2s + var(--i,0) * 70ms); }
+    .cx-anim .timeline::before { transform:scaleY(0); transform-origin:50% 0; transition:transform 1.8s var(--ease); }
+    .cx-anim .timeline.in::before { transform:none; }
+    .tl-dot { transition:transform .6s cubic-bezier(.34,1.56,.64,1) .12s; }
+    .cx-anim .tl-item:not(.visible) .tl-dot { transform:scale(0); }
+    .tl-item:first-child .tl-dot::after { content:''; position:absolute; inset:-7px; border-radius:50%; border:2px solid var(--brand); opacity:0; animation:ping 2.6s cubic-bezier(0,0,.2,1) infinite 1.2s; }
+    .repo-card { animation:rvIn .6s var(--ease) both; animation-delay:calc(var(--i,0) * 45ms); }
+
+    /* Buttons: a light sweeps across ("Check it out" every few seconds, the others on hover) */
+    .subdomain-btn, .nl-btn, .gb-submit { position:relative; overflow:hidden; }
+    .subdomain-btn::after, .nl-btn::after, .gb-submit::after { content:''; position:absolute; top:0; bottom:0; left:-60%; width:45%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent); transform:skewX(-20deg); pointer-events:none; }
+    .subdomain-btn::after { animation:shineLoop 5.5s var(--ease) infinite 2.5s; }
+    .theme-ic.spin i { animation:spinIn .5s var(--ease); }
+    ::view-transition-old(root), ::view-transition-new(root) { animation:none; mix-blend-mode:normal; }
+    #loader > * { transition:transform .6s var(--ease); }
+    #loader.fade > * { transform:translateY(-14px) scale(.98); }
+
+    /* PC only: a light follows the mouse over cards, the ClavexisAI card tilts, buttons lean toward the pointer */
+    @media (hover:hover) and (pointer:fine) {
+      :is(.skill-card, .stat-card, .platform-card, .gaming-card, .blog-card, .repo-card, .testi-card, .community-card, .split-col, .nl-form-wrap, .subdomain-card) { position:relative; isolation:isolate; }
+      :is(.skill-card, .stat-card, .platform-card, .gaming-card, .blog-card, .repo-card, .testi-card, .community-card, .split-col, .nl-form-wrap, .subdomain-card)::after { content:''; position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none; opacity:0; transition:opacity .35s; background:radial-gradient(circle 320px at var(--mx,-999px) var(--my,-999px), color-mix(in srgb,var(--spot,var(--brand)) 16%,transparent), transparent 70%); }
+      :is(.skill-card, .stat-card, .platform-card, .gaming-card, .blog-card, .repo-card, .testi-card, .community-card, .split-col, .nl-form-wrap, .subdomain-card):hover::after { opacity:1; }
+      .gaming-card, .skill-card.gaming, .platform-card.yt { --spot:var(--red); }
+      .platform-card.ig { --spot:#E4405F; }
+      .community-card.discord { --spot:#5865F2; }
+      .community-card.twitch { --spot:#9146FF; }
+      .subdomain-card { transition:border-color .25s, box-shadow .25s, transform .5s var(--ease); }
+      .mag { transition:transform .2s var(--ease), translate .35s var(--ease), background .2s, border-color .2s, color .2s; }
+      .nl-btn:hover::after, .gb-submit:hover::after { animation:shine .85s var(--ease); }
+    }
+    @media (hover:none), (pointer:coarse) { #cursorCanvas { display:none; } }
+    @media(max-width:768px){
+      .nav-ink, .hero > .scroll-cue { display:none; }
+      .nav-link.active { background:var(--brand-soft); }
     }
   </style>
 </head>
@@ -561,7 +649,7 @@
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="grid-fx"></div></div>
+    <div class="hero-bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="grid-fx"></div><div class="grid-fx grid-glow"></div></div>
     <div class="eyebrow">// dev &nbsp;&amp;&nbsp; gamer &nbsp;·&nbsp; 2026</div>
     <h1 class="hero-name" data-text="clavexis"><span class="c">clav</span>exis</h1>
     <div class="roles">
@@ -583,6 +671,7 @@
         <span class="bio-pill">🎓 Student</span>
       </div>
     </div>
+    <button class="scroll-cue" type="button" aria-label="Scroll down" onclick="goTo('github-stats')"></button>
   </div>
 
   <!-- MARQUEE -->
@@ -1045,12 +1134,24 @@
       const light = currentTheme() === 'light';
       document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', light ? '#f4f6fb' : '#070a12'));
     }
-    function toggleTheme() {
-      const next = currentTheme() === 'light' ? 'dark' : 'light';
+    function applyTheme(next) {
       document.documentElement.setAttribute('data-theme', next);
       try { localStorage.setItem('cx-theme', next); } catch (e) {}
       paintThemeBar();
       window.dispatchEvent(new Event('cxtheme'));
+    }
+    /* The new colours spread in a circle from the button (browsers without view transitions just switch) */
+    function toggleTheme() {
+      const next = currentTheme() === 'light' ? 'dark' : 'light';
+      const btn = document.getElementById('themeBtn');
+      btn.classList.remove('spin'); void btn.offsetWidth; btn.classList.add('spin');
+      if (!document.startViewTransition) return applyTheme(next);
+      const r = btn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      document.startViewTransition(() => applyTheme(next)).ready.then(() => {
+        document.documentElement.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
+          { duration: 650, easing: 'cubic-bezier(.2,.8,.2,1)', pseudoElement: '::view-transition-new(root)' });
+      }).catch(() => {});
     }
     if (document.documentElement.getAttribute('data-theme')) paintThemeBar();
 
@@ -1082,6 +1183,8 @@
         } else {
           setTimeout(() => {
             document.getElementById('loader').classList.add('fade');
+            document.documentElement.classList.add('ready');      // the hero and sections start animating
+            window.dispatchEvent(new Event('cxready'));
             setTimeout(() => document.getElementById('loader').remove(), 700);
           }, 400);
         }
@@ -1090,47 +1193,143 @@
     })();
 
     /* ══════════════════════════════
-       SCROLL PROGRESS
-    ══════════════════════════════ */
-    window.addEventListener('scroll', () => {
-      const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-      document.getElementById('scrollBar').style.width = pct + '%';
-    });
-
-    /* ══════════════════════════════
-       CURSOR TRAIL
+       SCROLL: progress bar, nav highlight, hero depth
     ══════════════════════════════ */
     (function() {
-      const canvas = document.getElementById('cursorCanvas');
-      const ctx = canvas.getContext('2d');
-      let W = canvas.width = window.innerWidth;
-      let H = canvas.height = window.innerHeight;
-      window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
-      const particles = [];
-      const brandColor = () => getComputedStyle(document.documentElement).getPropertyValue('--brand').trim() || '#6ea8ff';
-      let trail = brandColor();
-      const refreshTrail = () => { trail = brandColor(); };
-      window.addEventListener('cxtheme', refreshTrail);
-      const schemeQuery = matchMedia('(prefers-color-scheme: light)');
-      if (schemeQuery.addEventListener) schemeQuery.addEventListener('change', refreshTrail); else if (schemeQuery.addListener) schemeQuery.addListener(refreshTrail);
-      let mx = -999, my = -999;
-      window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-      function Particle(x, y) { this.x=x; this.y=y; this.vx=(Math.random()-0.5)*1.5; this.vy=(Math.random()-0.5)*1.5; this.life=1; this.r=Math.random()*3+1; }
-      function loop() {
-        ctx.clearRect(0, 0, W, H);
-        if (mx > 0) particles.push(new Particle(mx, my));
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.x += p.vx; p.y += p.vy; p.life -= 0.035;
-          if (p.life <= 0) { particles.splice(i, 1); continue; }
-          ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
-          ctx.globalAlpha = p.life * 0.6; ctx.fillStyle = trail; ctx.shadowBlur = 6; ctx.shadowColor = trail; ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-        if (particles.length > 120) particles.splice(0, particles.length - 120);
-        requestAnimationFrame(loop);
+      const root = document.documentElement, nav = document.querySelector('nav'), bar = document.getElementById('scrollBar');
+      const heroBg = document.querySelector('.hero-bg'), links = document.getElementById('navLinks');
+      const ink = document.createElement('span');
+      ink.className = 'nav-ink'; ink.setAttribute('aria-hidden', 'true'); links.prepend(ink);
+      const linkFor = {};
+      links.querySelectorAll('.nav-link').forEach(b => { const m = /goTo\('([\w-]+)'\)/.exec(b.getAttribute('onclick') || ''); if (m) linkFor[m[1]] = b; });
+      const sections = [...document.querySelectorAll('section[id]')];
+      let active = null, ticking = false;
+      function placeInk() {
+        if (!active) { ink.style.opacity = 0; return; }
+        const first = ink.style.opacity !== '1';        // appear in place instead of sliding in from the left
+        if (first) ink.style.transition = 'none';
+        ink.style.width = active.offsetWidth + 'px'; ink.style.height = active.offsetHeight + 'px';
+        ink.style.transform = `translate(${active.offsetLeft}px, ${active.offsetTop}px)`;
+        if (first) { void ink.offsetWidth; ink.style.transition = ''; }
+        ink.style.opacity = 1;
       }
-      loop();
+      function update() {
+        ticking = false;
+        const y = scrollY, h = innerHeight, max = root.scrollHeight - h;
+        bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+        nav.classList.toggle('scrolled', y > 10);
+        root.classList.toggle('cx-scrolled', y > 40);
+        if (y < h * 1.5) heroBg.style.transform = `translate3d(0, ${(y * .35).toFixed(1)}px, 0)`;   // the background lags behind
+        let sec = null;
+        for (const s of sections) { if (s.getBoundingClientRect().top <= h * .35) sec = s; else break; }
+        if (max > 0 && y >= max - 4) sec = sections[sections.length - 1];
+        const b = (sec && linkFor[sec.id]) || null;
+        if (b !== active) {
+          if (active) active.classList.remove('active');
+          if (b) b.classList.add('active');
+          active = b; placeInk();
+        }
+      }
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+      addEventListener('resize', () => { placeInk(); update(); });
+      if (document.fonts) document.fonts.ready.then(placeInk);   // link widths change once the font arrives
+      update();
+    })();
+
+    /* ══════════════════════════════
+       CURSOR TRAIL (PC only)
+       A glowing ribbon follows the mouse and fades. Phones have no cursor: a tap used to
+       leave a sparkling dot stuck where you touched.
+    ══════════════════════════════ */
+    const FINE_POINTER = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    (function() {
+      const canvas = document.getElementById('cursorCanvas');
+      if (!FINE_POINTER || !canvas.getContext) { canvas.remove(); return; }
+      const ctx = canvas.getContext('2d');
+      let W = 0, H = 0;
+      function size() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = innerWidth; H = innerHeight;
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      size(); addEventListener('resize', size);
+      const rgb = name => {
+        const m = /#([\da-f]{2})([\da-f]{2})([\da-f]{2})/i.exec(getComputedStyle(document.documentElement).getPropertyValue(name));
+        return m ? m.slice(1).map(h => parseInt(h, 16)).join(',') : '110,168,255';
+      };
+      let head, tail, dark;
+      function paint() { head = rgb('--brand'); tail = rgb('--violet'); dark = currentTheme() === 'dark'; }
+      paint();
+      window.addEventListener('cxtheme', paint);
+      const schemeQuery = matchMedia('(prefers-color-scheme: light)');
+      if (schemeQuery.addEventListener) schemeQuery.addEventListener('change', paint); else if (schemeQuery.addListener) schemeQuery.addListener(paint);
+
+      const LIFE = 450, WIDTH = 4.5;          // ms a point of the ribbon lasts; half-width at the head
+      const strokes = [], sparks = [];
+      let cur = null, running = false;
+      function add(x, y, t) {
+        if (!cur) strokes.push(cur = []);
+        const last = cur[cur.length - 1];
+        if (last) {
+          const dx = x - last.x, dy = y - last.y, d = Math.hypot(dx, dy);
+          if (d < 1.5) return;
+          if (d > 18 && sparks.length < 36 && Math.random() < .3)
+            sparks.push({ x, y, vx: dx * .03 + Math.random() - .5, vy: dy * .03 + Math.random() - .5, life: 1, r: Math.random() * 1.4 + .7, c: Math.random() < .5 });
+        }
+        cur.push({ x, y, t });
+        if (!running) { running = true; requestAnimationFrame(frame); }
+      }
+      addEventListener('pointermove', e => {
+        if (e.pointerType !== 'mouse') return;
+        const now = performance.now(), list = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+        if (list.length) list.forEach(c => add(c.clientX, c.clientY, now)); else add(e.clientX, e.clientY, now);
+      }, { passive: true });
+      addEventListener('mouseout', e => { if (!e.relatedTarget) cur = null; });   // left the window: the next move starts a new ribbon
+
+      function ribbon(s, now) {
+        const n = s.length;
+        if (n < 2) return;
+        const L = [], R = [];
+        for (let i = 0; i < n; i++) {
+          const p = s[i], a = s[Math.max(0, i - 1)], b = s[Math.min(n - 1, i + 1)];
+          let nx = a.y - b.y, ny = b.x - a.x;
+          const len = Math.hypot(nx, ny) || 1;
+          const w = WIDTH * Math.min(1, Math.max(0, 1 - (now - p.t) / LIFE)) * (i + 1) / n;
+          nx = nx / len * w; ny = ny / len * w;
+          L.push(p.x + nx, p.y + ny); R.push(p.x - nx, p.y - ny);
+        }
+        ctx.beginPath(); ctx.moveTo(L[0], L[1]);
+        for (let i = 2; i < L.length; i += 2) ctx.lineTo(L[i], L[i + 1]);
+        for (let i = R.length - 2; i >= 0; i -= 2) ctx.lineTo(R[i], R[i + 1]);
+        ctx.closePath();
+        const a = s[0], z = s[n - 1], g = ctx.createLinearGradient(a.x, a.y, z.x, z.y), alpha = dark ? .9 : .7;
+        g.addColorStop(0, `rgba(${tail},0)`); g.addColorStop(1, `rgba(${head},${alpha})`);
+        ctx.fillStyle = g; ctx.fill();
+        const hw = WIDTH * Math.min(1, Math.max(0, 1 - (now - z.t) / LIFE));
+        ctx.beginPath(); ctx.arc(z.x, z.y, hw, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${head},${alpha})`; ctx.fill();
+      }
+      function frame(now) {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = strokes.length - 1; i >= 0; i--) {
+          const s = strokes[i];
+          while (s.length && now - s[0].t > LIFE) s.shift();
+          if (!s.length && s !== cur) strokes.splice(i, 1);
+        }
+        ctx.shadowColor = `rgba(${head},.75)`; ctx.shadowBlur = dark ? 12 : 0;
+        strokes.forEach(s => ribbon(s, now));
+        ctx.shadowBlur = 0;
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          const p = sparks[i];
+          p.x += p.vx; p.y += p.vy; p.vx *= .96; p.vy *= .96; p.life -= .03;
+          if (p.life <= 0) { sparks.splice(i, 1); continue; }
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${p.c ? head : tail},${(p.life * .8).toFixed(2)})`; ctx.fill();
+        }
+        if (sparks.length || strokes.some(s => s.length)) requestAnimationFrame(frame);
+        else { running = false; ctx.clearRect(0, 0, W, H); }
+      }
     })();
 
     /* ══════════════════════════════
@@ -1254,9 +1453,9 @@
         document.getElementById('stat-repos').textContent = repos.length;
         // Language → colour map
         const langColor = { JavaScript:'#f7df1e', TypeScript:'#3178c6', Python:'#3572A5', 'C++':'#f34b7d', C:'#555555', Rust:'#dea584', Go:'#00ADD8', Java:'#b07219', 'C#':'#178600', PHP:'#4F5D95', Ruby:'#701516', Swift:'#ffac45', Kotlin:'#A97BFF', HTML:'#e34c26', CSS:'#563d7c', Shell:'#89e051', Lua:'#000080', Zig:'#ec915c', default:'#6ea8ff' };
-        grid.innerHTML = repos.map(repo => {
+        grid.innerHTML = repos.map((repo, i) => {
           const lc = langColor[repo.language] || langColor.default;
-          return `<a class="repo-card" href="${repo.html_url}" target="_blank" rel="noopener">
+          return `<a class="repo-card" style="--i:${Math.min(i, 12)}" href="${repo.html_url}" target="_blank" rel="noopener">
             <div class="repo-name">${repo.name.replace(/</g,'&lt;')}</div>
             ${repo.description ? `<div class="repo-desc">${repo.description.replace(/</g,'&lt;').slice(0,110)}</div>` : '<div class="repo-desc" style="color:var(--dim)">No description yet</div>'}
             <div class="repo-meta">
@@ -1282,20 +1481,15 @@
         // Increment and retrieve global count
         const res = await fetch('https://api.countapi.xyz/hit/clavexis-portfolio-v1/visits');
         const data = await res.json();
-        const count = data.value?.toLocaleString() ?? '—';
-        const el = document.getElementById('visitCount');
-        const el2 = document.getElementById('footerVisitCount');
-        if (el) el.textContent = count;
-        if (el2) el2.textContent = count;
+        countUp(document.getElementById('visitCount'), data.value);
+        countUp(document.getElementById('footerVisitCount'), data.value);
       } catch {
         // Fallback: device-local count if CountAPI is down
         try {
           let local = parseInt(localStorage.getItem('clx_local_visits') || '0') + 1;
           localStorage.setItem('clx_local_visits', local);
-          const el = document.getElementById('visitCount');
-          const el2 = document.getElementById('footerVisitCount');
-          if (el) el.textContent = local.toLocaleString();
-          if (el2) el2.textContent = local.toLocaleString();
+          countUp(document.getElementById('visitCount'), local);
+          countUp(document.getElementById('footerVisitCount'), local);
         } catch {}
       }
     })();
@@ -1306,8 +1500,8 @@
     fetch('https://discord.com/api/v9/invites/Xp5ACjnbue?with_counts=true')
       .then(r => r.json())
       .then(d => {
-        document.getElementById('discord-members').textContent = d.approximate_member_count?.toLocaleString() ?? '—';
-        document.getElementById('discord-online').textContent = d.approximate_presence_count?.toLocaleString() ?? '—';
+        countUp(document.getElementById('discord-members'), d.approximate_member_count);
+        countUp(document.getElementById('discord-online'), d.approximate_presence_count);
       }).catch(() => {});
 
     /* ══════════════════════════════
@@ -1316,10 +1510,10 @@
     fetch('https://api.github.com/users/Clavexis')
       .then(r => r.json())
       .then(data => {
-        document.getElementById('stat-repos').textContent = data.public_repos ?? '—';
-        document.getElementById('stat-followers').textContent = data.followers ?? '—';
-        document.getElementById('stat-following').textContent = data.following ?? '—';
-        document.getElementById('stat-gists').textContent = data.public_gists ?? '—';
+        countUp(document.getElementById('stat-repos'), data.public_repos);
+        countUp(document.getElementById('stat-followers'), data.followers);
+        countUp(document.getElementById('stat-following'), data.following);
+        countUp(document.getElementById('stat-gists'), data.public_gists);
       }).catch(() => {});
 
     /* ══════════════════════════════
@@ -1550,6 +1744,143 @@
       }
       emailToOwner(early ? 'New early access sign-up — clavexis.com' : 'New Subscriber — clavexis.com', fields);
     }
+
+    /* ══════════════════════════════
+       MOTION
+       Blocks slide in as they come into view, headings rise word by word, // labels decode,
+       numbers count up and the timeline line draws itself, on every device. The mouse-only
+       effects (card light, tilt, magnetic buttons, hero grid light) run on PCs only.
+    ══════════════════════════════ */
+    function decodeText(el) {
+      if (!el || el.children.length || el.dataset.decoded) return;
+      el.dataset.decoded = '1';
+      const text = el.textContent, glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+/<>';
+      const start = performance.now();
+      (function tick(now) {
+        const done = Math.min(1, (now - start) / 650) * text.length;
+        el.textContent = text.replace(/[A-Za-z0-9]/g, (ch, i) => i < done ? ch : glyphs[Math.random() * glyphs.length | 0]);
+        if (done < text.length) requestAnimationFrame(tick); else el.textContent = text;
+      })(start);
+    }
+    /* Counts up to a number once it's on screen; anything else is shown as it is */
+    function countUp(el, value) {
+      if (!el) return;
+      if (typeof value !== 'number' || !(value > 0)) { el.textContent = value ?? '—'; return; }
+      const run = () => {
+        const start = performance.now();
+        (function tick(now) {
+          const p = Math.min(1, (now - start) / 1400);
+          el.textContent = Math.round(value * (1 - Math.pow(1 - p, 3))).toLocaleString();
+          if (p < 1) requestAnimationFrame(tick);
+        })(start);
+      };
+      if (!('IntersectionObserver' in window)) return run();
+      const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); run(); } }, { threshold: .5 });
+      io.observe(el);
+    }
+    (function() {
+      const root = document.documentElement;
+      const REVEAL = [
+        'section .sec-label', '.col-label:not(.split-col .col-label)', '#guestbook > .contact-desc', '.contact-wrap > *',
+        '.split-col', '.skill-filter-wrap', '.stat-card', '.platform-card', '.soc-btn', '.gaming-card', '.tabs',
+        '#tab-ai .subdomain-card', '.blog-card', '.guestbook-form', '#gbEntries', '.testi-card', '.community-card',
+        '.nl-perk', '.nl-form-wrap', '.marquee-wrap', 'footer'
+      ].join(',');
+      const watched = [];
+      function show(el) {
+        el.classList.add('in');
+        if (el.matches('.sec-label, .col-label')) decodeText(el);
+        el.querySelectorAll('.col-label').forEach(decodeText);
+      }
+      document.querySelectorAll(REVEAL).forEach(el => {
+        el.classList.add('rv');
+        // once it has slid in, drop the animation so hover effects own the element again
+        el.addEventListener('animationend', e => { if (e.target === el && e.animationName === 'rvIn') el.classList.remove('rv'); });
+        watched.push(el);
+      });
+      document.querySelectorAll('.sec-title').forEach(h => {
+        const words = h.textContent.trim().split(/\s+/);
+        h.textContent = '';
+        words.forEach((w, i) => {
+          const outer = document.createElement('span'), inner = document.createElement('span');
+          outer.className = 'tw'; inner.textContent = w; inner.style.setProperty('--w', i);
+          outer.appendChild(inner); h.appendChild(outer);
+          if (i < words.length - 1) h.appendChild(document.createTextNode(' '));
+        });
+        h.classList.add('split-words');
+        watched.push(h);
+      });
+      document.querySelectorAll('hr.divider, .timeline').forEach(el => watched.push(el));
+      // stagger order; "Show all" items count from 0 again so they arrive quickly
+      function stagger(list) { let a = 0, b = 0; list.forEach(el => el.style.setProperty('--i', el.classList.contains('extra') ? b++ : a++)); }
+      stagger(document.querySelectorAll('.hero .role'));
+      stagger(document.querySelectorAll('.hero .bio-pill'));
+      stagger(document.querySelectorAll('.lang-grid .lang-tag'));
+      stagger(document.querySelectorAll('.abilities-list .ability-item'));
+
+      let started = false;
+      function start() {
+        if (started) return;
+        started = true;
+        root.classList.add('ready');
+        decodeText(document.querySelector('.eyebrow'));
+        if (!('IntersectionObserver' in window)) { watched.forEach(show); return; }
+        const io = new IntersectionObserver(entries => {
+          let n = 0;      // things that come into view together slide in one after another
+          entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            io.unobserve(e.target);
+            e.target.style.setProperty('--d', Math.min(n++, 8));
+            show(e.target);
+          });
+        }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+        watched.forEach(el => io.observe(el));
+      }
+      if (root.classList.contains('ready')) start();
+      else { addEventListener('cxready', start, { once: true }); setTimeout(start, 5000); }
+
+      if (!FINE_POINTER) return;
+      // PC: a light follows the mouse over cards
+      const LIT = '.skill-card, .stat-card, .platform-card, .gaming-card, .blog-card, .repo-card, .testi-card, .community-card, .split-col, .nl-form-wrap, .subdomain-card';
+      document.addEventListener('pointermove', e => {
+        if (e.pointerType !== 'mouse' || !e.target.closest) return;
+        const card = e.target.closest(LIT);
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', Math.round(e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', Math.round(e.clientY - r.top) + 'px');
+      }, { passive: true });
+      // PC: the hero's grid lights up around the mouse and the colour blobs drift with it
+      const hero = document.querySelector('.hero'), bg = hero.querySelector('.hero-bg');
+      hero.addEventListener('pointermove', e => {
+        if (e.pointerType !== 'mouse') return;
+        const r = bg.getBoundingClientRect();
+        bg.style.setProperty('--gx', Math.round(e.clientX - r.left) + 'px');
+        bg.style.setProperty('--gy', Math.round(e.clientY - r.top) + 'px');
+        bg.style.setProperty('--px', ((e.clientX - r.left) / r.width * 2 - 1).toFixed(3));
+        bg.style.setProperty('--py', ((e.clientY - r.top) / r.height * 2 - 1).toFixed(3));
+        bg.classList.add('lit');
+      });
+      hero.addEventListener('pointerleave', () => { bg.classList.remove('lit'); bg.style.setProperty('--px', 0); bg.style.setProperty('--py', 0); });
+      // PC: the ClavexisAI card tilts toward the mouse
+      const tilt = document.querySelector('.subdomain-card');
+      if (tilt) {
+        tilt.addEventListener('pointermove', e => {
+          const r = tilt.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+          tilt.style.transform = `perspective(1100px) rotateX(${(-y * 7).toFixed(2)}deg) rotateY(${(x * 9).toFixed(2)}deg) translateY(-3px)`;
+        });
+        tilt.addEventListener('pointerleave', () => { tilt.style.transform = ''; });
+      }
+      // PC: buttons lean toward the pointer
+      document.querySelectorAll('.soc-btn, .nl-btn, .gb-submit, .gh-all').forEach(b => {
+        b.classList.add('mag');
+        b.addEventListener('pointermove', e => {
+          const r = b.getBoundingClientRect();
+          b.style.translate = `${(((e.clientX - r.left) / r.width - .5) * 12).toFixed(1)}px ${(((e.clientY - r.top) / r.height - .5) * 10).toFixed(1)}px`;
+        });
+        b.addEventListener('pointerleave', () => { b.style.translate = ''; });
+      });
+    })();
 
     /* ══════════════════════════════
        EASTER EGG
